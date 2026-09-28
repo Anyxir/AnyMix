@@ -1,0 +1,26 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <IsKernelModeToolset>true</IsKernelModeToolset>
+    <IsDriverToolset>true</IsDriverToolset>
+    <WDKContentRoot>C:\Program Files (x86)\Windows Kits\10\</WDKContentRoot>
+    <WDKBuildFolder>10.0.26100.0</WDKBuildFolder>
+  </PropertyGroup>
+  <Import Project="$(WDKContentRoot)build\$(WDKBuildFolder)\WindowsDriver.Default.props" />
+  <PropertyGroup>
+    <DDKPlatform Condition="'$(DDKPlatform)' == ''">x64</DDKPlatform>
+    <KMDF_VERSION_MINOR Condition="'$(KMDF_VERSION_MINOR)' == ''">15</KMDF_VERSION_MINOR>
+    <KM_IncludePath>$(WDKContentRoot)Include\$(TargetPlatformVersion)\km;$(WDKContentRoot)Include\$(TargetPlatformVersion)\km\crt;$(WDKContentRoot)Include\$(TargetPlatformVersion)\shared;$(WDKContentRoot)Include\wdf\kmdf\1.$(KMDF_VERSION_MINOR)</KM_IncludePath>
+    <KIT_SHARED_IncludePath>$(WDKContentRoot)Include\$(TargetPlatformVersion)\shared</KIT_SHARED_IncludePath>
+    <CRT_IncludePath>$(WDKContentRoot)Include\$(TargetPlatformVersion)\km\crt</CRT_IncludePath>
+    <DDK_LIB_PATH>$(WDKContentRoot)Lib\$(TargetPlatformVersion)\km\$(DDKPlatform)\</DDK_LIB_PATH>
+    <KMDF_LIB_PATH>$(WDKContentRoot)Lib\wdf\kmdf\$(DDKPlatform)\</KMDF_LIB_PATH>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)Platforms\$(Platform)\PlatformToolsets\v143\Toolset.props" />
+  <Import Project="$(WDKContentRoot)build\$(WDKBuildFolder)\x64\ImportAfter\WDK.x64.WindowsKernelModeDriver.Platform.props" />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <EnablePREfast>false</EnablePREfast>
+      <TreatWarningAsError>false</TreatWarningAsError>
+    </ClCompile>
+  </ItemDefinitionGroup>
+</Project>

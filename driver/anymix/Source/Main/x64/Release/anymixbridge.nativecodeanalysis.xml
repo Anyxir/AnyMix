@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\akram\Downloads\vb\driver\anymix\Source\Main\</FILEPATH>
+      <FILENAME>anymixbridge.cpp</FILENAME>
+      <LINE>253</LINE>
+      <COLUMN>55</COLUMN>
+    </SFA>
+    <DEFECTCODE>28023</DEFECTCODE>
+    <DESCRIPTION>La fonction attribuée ou passée doit avoir une annotation _Function_class_ pour au moins une des classes dans: 'DRIVER_DISPATCH'. Fréquemment, l'utilisation d'une seule classe de fonction est due à la non-déclaration d'un rappel du type approprié. Vous pouvez éventuellement corriger cela en indiquant '&lt;nom de la classe de fonction&gt; AnyMixDeviceControl' avant la première déclaration de la fonction. &lt;nom de la classe de fonction&gt; doit correspondre à l'une des classes de fonction listées ci-dessus.</DESCRIPTION>
+    <FUNCTION>AnyMixCreateControlDevice</FUNCTION>
+    <DECORATED>AnyMixCreateControlDevice</DECORATED>
+    <FUNCLINE>226</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\akram\Downloads\vb\driver\anymix\Source\Main\</FILEPATH>
+      <FILENAME>anymixbridge.cpp</FILENAME>
+      <LINE>254</LINE>
+      <COLUMN>47</COLUMN>
+    </SFA>
+    <DEFECTCODE>28023</DEFECTCODE>
+    <DESCRIPTION>La fonction attribuée ou passée doit avoir une annotation _Function_class_ pour au moins une des classes dans: 'DRIVER_DISPATCH'. Fréquemment, l'utilisation d'une seule classe de fonction est due à la non-déclaration d'un rappel du type approprié. Vous pouvez éventuellement corriger cela en indiquant '&lt;nom de la classe de fonction&gt; AnyMixCreate' avant la première déclaration de la fonction. &lt;nom de la classe de fonction&gt; doit correspondre à l'une des classes de fonction listées ci-dessus.</DESCRIPTION>
+    <FUNCTION>AnyMixCreateControlDevice</FUNCTION>
+    <DECORATED>AnyMixCreateControlDevice</DECORATED>
+    <FUNCLINE>226</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\akram\Downloads\vb\driver\anymix\Source\Main\</FILEPATH>
+      <FILENAME>anymixbridge.cpp</FILENAME>
+      <LINE>255</LINE>
+      <COLUMN>46</COLUMN>
+    </SFA>
+    <DEFECTCODE>28023</DEFECTCODE>
+    <DESCRIPTION>La fonction attribuée ou passée doit avoir une annotation _Function_class_ pour au moins une des classes dans: 'DRIVER_DISPATCH'. Fréquemment, l'utilisation d'une seule classe de fonction est due à la non-déclaration d'un rappel du type approprié. Vous pouvez éventuellement corriger cela en indiquant '&lt;nom de la classe de fonction&gt; AnyMixCreate' avant la première déclaration de la fonction. &lt;nom de la classe de fonction&gt; doit correspondre à l'une des classes de fonction listées ci-dessus.</DESCRIPTION>
+    <FUNCTION>AnyMixCreateControlDevice</FUNCTION>
+    <DECORATED>AnyMixCreateControlDevice</DECORATED>
+    <FUNCLINE>226</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

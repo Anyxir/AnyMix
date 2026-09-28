@@ -1,0 +1,13 @@
+--- driver while 1 kHz plays into default output ---
+DRIVER_TEST sec=30.011 playedFrames=1444320 playedPerSec=48125.6 mix=48000 buffer=4800 period100ns=100000
+stream 0 reads=1899 reportedPerSec=0.0 min=0 max=0 avg=0.0 exact512=0 tailZeroPerSec=0.0
+stream 1 reads=1899 reportedPerSec=0.0 min=0 max=0 avg=0.0 exact512=0 tailZeroPerSec=0.0
+stream 2 reads=1899 reportedPerSec=0.0 min=0 max=0 avg=0.0 exact512=0 tailZeroPerSec=0.0
+stream 3 reads=1899 reportedPerSec=32397.2 min=512 max=512 avg=512.0 exact512=1899 tailZeroPerSec=221.8
+stream 4 reads=1899 reportedPerSec=0.0 min=0 max=0 avg=0.0 exact512=0 tailZeroPerSec=0.0
+--- ring equal rate ---
+RING size=480 chunk=48 underrun=0 overrun=0 fillMin=0 fillMax=0 fillAvg=0
+RING size=960 chunk=48 underrun=0 overrun=0 fillMin=0 fillMax=0 fillAvg=0
+RING size=2048 chunk=48 underrun=0 overrun=0 fillMin=0 fillMax=0 fillAvg=0
+RING size=4096 chunk=48 underrun=0 overrun=0 fillMin=0 fillMax=0 fillAvg=0
+RING size=8192 chunk=48 underrun=0 overrun=0 fillMin=0 fillMax=0 fillAvg=0

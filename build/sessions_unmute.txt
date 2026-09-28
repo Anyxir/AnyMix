@@ -1,0 +1,5 @@
+﻿SESSION AnyMix Aux | LEDKeeper2.exe | muted=1
+SESSION AnyMix Aux | LEDKeeper2.exe | muted=0
+SESSION AnyMix Aux | Discord.exe | muted=0
+SESSION AnyMix Music | Spotify | muted=1
+SESSION_COUNT 4

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<Rule Name="RC" PageTemplate="tool" DisplayName="Ressources" SwitchPrefix="/" Order="50" xmlns="http://schemas.microsoft.com/build/2009/properties" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <Rule.Categories>
+    <Category Name="General" DisplayName="Général"/>
+    <Category Name="All Options" DisplayName="Toutes les options" Subtype="Search"/>
+    <Category Name="Command Line" DisplayName="Ligne de commande" Subtype="CommandLine"/>
+  </Rule.Categories>
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile" ItemType="ResourceCompile" Label="" HasConfigurationCondition="true"/>
+  </Rule.DataSource>
+  <StringListProperty Name="PreprocessorDefinitions" DisplayName="Définitions de préprocesseur" Description="Spécifie une ou plusieurs définitions pour le compilateur de ressources. (/d[macro])" Category="General" Switch="D " F1Keyword="VC.Project.VCResourceCompilerTool.PreprocessorDefinitions">
+  </StringListProperty>
+  <StringListProperty Name="DesigntimePreprocessorDefinitions" DisplayName="Définitions de préprocesseur au moment de la conception" Description="Définitions de l'éditeur de ressources." Category="General" IncludeInCommandLine="false" Visible="false">
+  </StringListProperty>
+  <StringListProperty Name="UndefinePreprocessorDefinitions" DisplayName="Définitions de préprocesseur non définies" Description="Annule la définition d'un symbole. (/u)" Category="General" Switch="u" F1Keyword="VC.Project.VCResourceCompilerTool.UndefineProcessorDefinitions">
+  </StringListProperty>
+  <DynamicEnumProperty EnumProvider="cultures" Name="Culture" DisplayName="Culture" Description="Répertorie la culture (par exemple, anglais américain ou italien) utilisée dans les ressources. (/l [num])" Category="General" Switch="l" F1Keyword="VC.Project.VCResourceCompilerTool.Culture">
+    <DynamicEnumProperty.ProviderSettings>
+      <NameValuePair Name="DisplayNameFormat" Value="{}{1} (0x{0:x})"/>
+      <NameValuePair Name="SwitchFormat" Value="{}l 0x{0:x4}"/>
+    </DynamicEnumProperty.ProviderSettings>
+  </DynamicEnumProperty>
+  <StringListProperty Subtype="folder" Name="AdditionalIncludeDirectories" DisplayName="Autres répertoires Include" Description="Spécifie un ou plusieurs répertoires à ajouter au chemin d'accès Include. En présence de plusieurs répertoires, utilisez une liste délimitée par des points-virgules. (/I[path])" Category="General" Switch="I" F1Keyword="VC.Project.VCResourceCompilerTool.AdditionalIncludeDirectories">
+  </StringListProperty>
+  <BoolProperty Name="IgnoreStandardIncludePath" DisplayName="Chemins d'accès Include standard ignorés" Description="Empêche le compilateur de ressources de rechercher des fichiers Include dans les répertoires spécifiés dans les variables d'environnement INCLUDE. (/X)" Category="General" Switch="X" F1Keyword="VC.Project.VCResourceCompilerTool.IgnoreStandardIncludePath">
+  </BoolProperty>
+  <BoolProperty Name="ShowProgress" DisplayName="Affichage de l'avancement" Description="Envoie des messages d'avancement à la fenêtre Sortie. (/v)" Category="General" Switch="v" F1Keyword="VC.Project.VCResourceCompilerTool.ShowProgress">
+  </BoolProperty>
+  <BoolProperty Name="SuppressStartupBanner" DisplayName="Suppression de la bannière de démarrage" Description="Supprime l'affichage de la bannière de démarrage et du message d'information (/nologo)" Category="General" Switch="nologo" F1Keyword="VC.Project.VCResourceCompilerTool.SuppressStartupBanner">
+  </BoolProperty>
+  <StringProperty Subtype="file" Name="ResourceOutputFileName" DisplayName="Nom du fichier de ressources" Description="Spécifie le nom du fichier de ressources (/fo[fichier])" Category="General" Switch="fo" F1Keyword="VC.Project.VCResourceCompilerTool.ResourceOutputFileName">
+  </StringProperty>
+  <BoolProperty Name="NullTerminateStrings" DisplayName="Chaînes finissant par null" Description="Ajoute null à toutes les chaînes contenues dans les tables de chaînes. (/n)" Category="General" Switch="n" F1Keyword="VC.Project.VCResourceCompilerTool.NullTerminateStrings">
+  </BoolProperty>
+  <StringProperty Name="AdditionalOptions" DisplayName="Options supplémentaires" Description="Options supplémentaires" Category="Command Line" F1Keyword="vc.project.AdditionalOptionsPage">
+  </StringProperty>
+  <StringProperty Subtype="folder" Name="TrackerLogDirectory" DisplayName="Répertoire des journaux de Tracker" Description="Répertoire des journaux de Tracker." Category="General" IncludeInCommandLine="false" Visible="false">
+  </StringProperty>
+</Rule>

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<Rule Name="CL" PageTemplate="tool" DisplayName="C/C++" SwitchPrefix="-" Order="10" xmlns="http://schemas.microsoft.com/build/2009/properties" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <Rule.Categories>
+    <Category Name="General" DisplayName="Général"/>
+    <Category Name="Optimization" DisplayName="Optimisation"/>
+    <Category Name="Preprocessor" DisplayName="Préprocesseur"/>
+    <Category Name="Code Generation" DisplayName="Génération de code"/>
+    <Category Name="Language" DisplayName="Langage"/>
+    <Category Name="Precompiled Headers" DisplayName="En-têtes précompilés"/>
+    <Category Name="Advanced" DisplayName="Avancé"/>
+    <Category Name="All Options" DisplayName="Toutes les options" Subtype="Search"/>
+    <Category Name="Command Line" DisplayName="Ligne de commande" Subtype="CommandLine"/>
+  </Rule.Categories>
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile" ItemType="ClCompile" Label="" HasConfigurationCondition="true"/>
+  </Rule.DataSource>
+  <BoolProperty Name="MSVCErrorReport" DisplayName="Rapport d'erreurs de Visual Studio" Description="Permet de signaler les erreurs que Visual Studio peut utiliser pour analyser les informations de fichier et de ligne." Category="General" Switch="fdiagnostics-format=msvc" Visible="false" F1Keyword="">
+  </BoolProperty>
+  <StringProperty Name="GccToolChain" DisplayName="Chaîne d'outils Gcc" Description="Chemin du dossier de la chaîne d'outils Gcc." Category="General" Switch="-gcc-toolchain=" Visible="false" F1Keyword="">
+  </StringProperty>
+  <StringProperty Name="TargetArch" DisplayName="Architecture cible" Description="Architecture cible" Category="General" Switch="target " Visible="false" F1Keyword="">
+  </StringProperty>
+  <StringProperty Name="Sysroot" DisplayName="Sysroot" Description="Chemin du dossier vers le répertoire racine pour les en-têtes et les bibliothèques." Category="General" Switch="-sysroot=" Visible="false" F1Keyword="">
+  </StringProperty>
+  <StringListProperty Subtype="folder" Name="ISystem" DisplayName="Chemin de recherche include système" Description="Chemin du répertoire pour le chemin de recherche include SYSTEM." Category="General" Switch="isystem " Visible="false" F1Keyword="">
+  </StringListProperty>
+  <StringListProperty Subtype="folder" Name="AdditionalIncludeDirectories" DisplayName="Autres répertoires Include" Description="Spécifie un ou plusieurs répertoires à ajouter au chemin d'accès Include. En présence de plusieurs chemins, tapez une liste délimitée par des points-virgules. (-I[path])." Category="General" Switch="I " F1Keyword="VC.Project.VCClangCompilerTool.AdditionalIncludeDirectories">
+  </StringListProperty>
+  <EnumProperty Name="DebugInformationFormat" DisplayName="Format des informations de débogage" Description="Indique le type d'informations de débogage générées par le compilateur." Category="General" F1Keyword="VC.Project.VCClangCompilerTool.DebugInformationFormat">
+    <EnumValue Name="None" Switch="g0" DisplayName="Aucun" Description="Ne génère aucune information de débogage, la compilation peut donc être plus rapide.">
+    </EnumValue>
+    <EnumValue Name="FullDebug" Switch="g2 -gdwarf-2" DisplayName="Informations de débogage complètes (DWARF2)" Description="Générez des informations de débogage DWARF2.">
+    </EnumValue>
+    <EnumValue Name="LineNumber" Switch="gline-tables-only" DisplayName="Informations de numéro de ligne" Description="Générez uniquement des informations de numéro de ligne.">
+    </EnumValue>
+  </EnumProperty>
+  <StringProperty Subtype="file" Name="ObjectFileName" DisplayName="Nom de fichier objet" Description="Spécifie un nom de substitution pour le nom de fichier objet par défaut. Il peut s'agir d'un nom de fichier ou de répertoire. (/Fo[name])" Category="General" Switch="o " F1Keyword="VC.Project.VCClangCompilerTool.ObjectFile">
+  </StringProperty>
+  <EnumProperty Name="WarningLevel" DisplayName="Niveau d'avertissement" Description="Sélectionnez la rigueur avec laquelle le compilateur doit traiter les erreurs de code. D'autres indicateurs doivent être ajoutés directement dans les options supplémentaires. (/w, /Weverything)." Category="General" F1Keyword="VC.Project.VCClangCompilerTool.WarningLevel">
+    <EnumValue Name="TurnOffAllWarnings" Switch="w" DisplayName="Désactiver tous les avertissements" Description="Désactive tous les avertissements du compilateur.">
+    </EnumValue>
+    <EnumValue Name="EnableAllWarnings" Switch="Wall" DisplayName="Activer tous les avertissements" Description="Active tous les avertissements, y compris ceux qui sont désactivés par défaut.">
+    </EnumValue>
+  </EnumProperty>
+  <BoolProperty Name="TreatWarningAsError" DisplayName="Considérer les avertissements comme des erreurs" Description="Considère tous les avertissements du compilateur comme des erreurs. Pour un nouveau projet, il est conseillé d'utiliser /WX dans toutes les compilations, car la résolution de tous les avertissements permet de réduire les erreurs de code difficilement détectables." Category="General" Switch="Werror" F1Keyword="VC.Project.VCClangCompilerTool.WarnAsError">
+  </BoolProperty>
+  <BoolProperty Name="Verbose" DisplayName="Activer le mode détaillé" Description="Affichez les commandes à exécuter et utilisez la sortie détaillée." Category="General" Switch="v" F1Keyword="VC.Project.VCClangCompilerTool.Verbose">
+  </BoolProperty>
+  <StringProperty Subtype="folder" Name="TrackerLogDirectory" DisplayName="Répertoire des journaux de Tracker" Description="Répertoire des journaux de Tracker." Category="General" IncludeInCommandLine="false" Visible="false">
+  </StringProperty>
+  <EnumProperty Name="Optimization" DisplayName="Optimisation" Description="Indique le niveau d'optimisation pour l'application." Category="Optimization" F1Keyword="VC.Project.VCClangCompilerTool.Optimization">
+    <EnumValue Name="Custom" Switch="" DisplayName="Personnalisée" Description="Optimisation personnalisée.">
+    </EnumValue>
+    <EnumValue Name="Disabled" Switch="O0" DisplayName="Désactivée" Description="Désactive l'optimisation.">
+    </EnumValue>
+    <EnumValue Name="MinSize" Switch="Os" DisplayName="Réduire la taille" Description="Optimisez pour la taille.">
+    </EnumValue>
+    <EnumValue Name="MaxSpeed" Switch="O2" DisplayName="Augmenter la vitesse" Description="Optimisez pour la vitesse.">
+    </EnumValue>
+    <EnumValue Name="Full" Switch="O3" DisplayName="Optimisation complète" Description="Optimisations coûteuses.">
+    </EnumValue>
+  </EnumProperty>
+  <BoolProperty ReverseSwitch="fno-strict-aliasing" Name="StrictAliasing" DisplayName="Alias strict" Description="Les règles d'alias les plus strictes sont utilisées. Un objet d'un type ne sera jamais considéré comme résidant à la même adresse qu'un objet d'un autre type." Category="Optimization" Switch="fstrict-aliasing" F1Keyword="VC.Project.VCClangCompilerTool.StrictAliasing">
+  </BoolProperty>
+  <EnumProperty Name="ThumbMode" DisplayName="Mode Thumb" Description="Générez du code qui s'exécute pour une micro-architecture Thumb. Applicable uniquement à l'architecture Arm." Category="Optimization" Visible="false" F1Keyword="VC.Project.VCClangCompilerTool.ThumbMode">
+    <EnumProperty.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="" Label="Configuration" HasConfigurationCondition="true"/>
+    </EnumProperty.DataSource>
+    <EnumValue Name="Thumb" Switch="mthumb" DisplayName="Thumb" Description="Générez du code Thumb.">
+    </EnumValue>
+    <EnumValue Name="ARM" Switch="marm" DisplayName="ARM" Description="Générez du code ARM.">
+    </EnumValue>
+    <EnumValue Name="Disabled" Switch="" DisplayName="Désactivée" Description="Option non applicable à la plateforme choisie.">
+    </EnumValue>
+  </EnumProperty>
+  <BoolProperty ReverseSwitch="fno-omit-frame-pointer" Name="OmitFramePointers" DisplayName="Omettre le pointeur de frame" Description="Empêche la création des pointeurs de frame sur la pile des appels." Category="Optimization" Switch="fomit-frame-pointer" F1Keyword="VC.Project.VCClangCompilerTool.OmitFramePointers">
+  </BoolProperty>
+  <EnumProperty Name="ExceptionHandling" DisplayName="Activer les exceptions C++" Description="Spécifie le modèle de gestion des exceptions à utiliser par le compilateur." Category="Code Generation" F1Keyword="VC.Project.VCClangCompilerTool.ExceptionHandling">
+    <EnumValue Name="Disabled" Switch="fno-exceptions" DisplayName="Non" Description="Désactivez la gestion des exceptions.">
+    </EnumValue>
+    <EnumValue Name="Enabled" Switch="fexceptions" DisplayName="Oui" Description="Activez la gestion des exceptions.">
+    </EnumValue>
+    <EnumValue Name="UnwindTables" Switch="funwind-tables" DisplayName="Tables Unwind" Description="Génère les données statiques requises, mais n'affecte pas le code généré.">
+    </EnumValue>
+  </EnumProperty>
+  <BoolProperty Name="FunctionLevelLinking" DisplayName="Activer la liaison au niveau des fonctions" Description="Permet au compilateur d'empaqueter des fonctions individuelles sous la forme de fonctions empaquetées (COMDATs). Requis avec l'option Modifier Continuer.    (ffunction-sections)." Category="Code Generation" Switch="ffunction-sections" F1Keyword="VC.Project.VCClangCompilerTool.EnableFunctionLevelLinking">
+  </BoolProperty>
+  <BoolProperty Name="DataLevelLinking" DisplayName="Activer la liaison au niveau des données" Description="Permet aux optimisations de l'Éditeur de liens de supprimer les données inutilisées en émettant chaque élément de données dans une section séparée." Category="Code Generation" Switch="fdata-sections" F1Keyword="VC.Project.VCClangCompilerTool.DataLevelLinking">
+  </BoolProperty>
+  <BoolProperty Name="EnableNeonCodegen" DisplayName="Activer Advanced SIMD (Neon)" Description="Permet la génération de code pour le matériel NEON Floating Point. Applicable uniquement à l'architecture Arm." Category="Code Generation" Switch="mfpu=neon" F1Keyword="VC.Project.VCClangCompilerTool.DataLevelLinking">
+  </BoolProperty>
+  <EnumProperty Name="FloatABI" DisplayName="Floating-point ABI" Description="Option pour choisir Floating Point ABI." Category="Code Generation" F1Keyword="VC.Project.VCClangCompilerTool.FloatABI">
+    <EnumValue Name="soft" Switch="mfloat-abi=soft" DisplayName="Soft" Description="Avec l'option 'Soft', le compilateur génère une sortie contenant des appels de bibliothèque pour les opérations à virgule flottante.">
+    </EnumValue>
+    <EnumValue Name="softfp" Switch="mfloat-abi=softfp" DisplayName="SoftFP" Description="'SoftFP' autorise la génération de code avec des instructions à virgule flottante matérielle, mais utilise toujours les conventions d'appel soft-float.">
+    </EnumValue>
+    <EnumValue Name="hard" Switch="mfloat-abi=hard" DisplayName="Hard" Description="'Hard' autorise la génération d'instructions à virgule flottante et utilise les conventions d'appel spécifiques à FPU.">
+    </EnumValue>
+  </EnumProperty>
+  <EnumProperty Name="BufferSecurityCheck" DisplayName="Vérification de la sécurité" Description="La vérification de la sécurité permet de détecter les saturations de mémoire tampon de pile, une tentative courante d'attaque contre la sécurité d'un programme. (fstack-protector)." Category="Code Generation" F1Keyword="VC.Project.VCClangCompilerTool.BufferSecurityCheck">
+    <EnumValue Name="false" Switch="" DisplayName="Désactiver la vérification de la sécurité" Description="Désactivez la vérification de la sécurité.">
+    </EnumValue>
+    <EnumValue Name="true" Switch="fstack-protector" DisplayName="Activer la vérification de la sécurité" Description="Activez la vérification de la sécurité. (fstack-protector)">
+    </EnumValue>
+  </EnumProperty>
+  <BoolProperty Name="PositionIndependentCode" DisplayName="PIC (code indépendant de la position)" Description="Générez du code PIC (code indépendant de la position) à utiliser dans une bibliothèque partagée." Category="Code Generation" Switch="fpic" F1Keyword="VC.Project.VCClangCompilerTool.PIC">
+  </BoolProperty>
+  <BoolProperty ReverseSwitch="fno-short-enums" Name="UseShortEnums" DisplayName="Utiliser des enums courts" Description="Un type enum utilise uniquement le nombre d'octets requis par l'ensemble des valeurs possibles d'entrée." Category="Code Generation" Switch="fshort-enums" F1Keyword="VC.Project.VCClangCompilerTool.UseShortEnums">
+  </BoolProperty>
+  <EnumProperty Name="RuntimeLibrary" DisplayName="Bibliothèque runtime" Description="Spécifie la bibliothèque runtime pour l'édition des liens.     (Commutateurs MSVC /MT, /MTd, /MD, /MDd)" Category="Code Generation" F1Keyword="VC.Project.VCCLCompilerTool.RuntimeLibrary">
+    <EnumValue Name="MultiThreaded" Switch="" DisplayName="Multithread" Description="Indique à votre application d'utiliser la version statique multithread de la bibliothèque runtime.">
+    </EnumValue>
+    <EnumValue Name="MultiThreadedDebug" Switch="" DisplayName="Débogage multithread" Description="Définit _DEBUG et _MT. Cette option indique également au compilateur d'ajouter le nom de bibliothèque LIBCMTD.lib dans le fichier .obj afin que l'Éditeur de liens utilise LIBCMTD.lib pour résoudre les symboles externes.">
+    </EnumValue>
+    <EnumValue Name="MultiThreadedDLL" Switch="" DisplayName="DLL multithread" Description="Indique à votre application d'utiliser la version DLL multithread de la bibliothèque runtime. Définit _MT et _DLL. Cette option indique également au compilateur d'ajouter le nom de bibliothèque MSVCRT.lib dans le fichier .obj.">
+    </EnumValue>
+    <EnumValue Name="MultiThreadedDebugDLL" Switch="" DisplayName="DLL de débogage multithread" Description="Définit _DEBUG, _MT et _DLL. Indique à votre application d'utiliser la version DLL de débogage multithread de la bibliothèque runtime. Cette option indique également au compilateur d'ajouter le nom de bibliothèque MSVCRTD.lib dans le fichier .obj.">
+    </EnumValue>
+  </EnumProperty>
+  <BoolProperty ReverseSwitch="fno-rtti" Name="RuntimeTypeInfo" DisplayName="Activer les informations de type au moment de l'exécution" Description="Ajoute le code permettant de vérifier les types d'objet C++ à l'exécution (informations de type au moment de l'exécution).     (frtti, fno-rtti)" Category="Language" Switch="frtti" F1Keyword="VC.Project.VCClangCompilerTool.RuntimeTypeInfo">
+  </BoolProperty>
+  <EnumProperty Name="CLanguageStandard" DisplayName="Norme du langage C" Description="Détermine la norme du langage C." Category="Language" F1Keyword="VC.Project.VCClangCompilerTool.CLanguageStandard">
+    <EnumValue Name="Default" Switch="" DisplayName="Par défaut">
+    </EnumValue>
+    <EnumValue Name="c89" Switch="std=c89" DisplayName="C89" Description="Norme du langage C89.">
+    </EnumValue>
+    <EnumValue Name="c99" Switch="std=c99" DisplayName="C99" Description="Norme du langage C99.">
+    </EnumValue>
+    <EnumValue Name="c11" Switch="std=c11" DisplayName="C11" Description="Norme du langage C11.">
+    </EnumValue>
+    <EnumValue Name="gnu99" Switch="std=gnu99" DisplayName="C99 (Dialecte GNU)" Description="Norme du langage C99 (Dialecte GNU).">
+    </EnumValue>
+    <EnumValue Name="gnu11" Switch="std=gnu11" DisplayName="C11 (Dialecte GNU)" Description="Norme du langage C11 (Dialecte GNU).">
+    </EnumValue>
+  </EnumProperty>
+  <EnumProperty Name="CppLanguageStandard" DisplayName="Norme du langage C++" Description="Détermine la norme du langage C++." Category="Language" F1Keyword="VC.Project.VCClangCompilerTool.CppLanguageStandard">
+    <EnumValue Name="Default" Switch="" DisplayName="Par défaut" Description="">
+    </EnumValue>
+    <EnumValue Name="c++98" Switch="std=c++98" DisplayName="C++03" Description="Norme du langage C++03.">
+    </EnumValue>
+    <EnumValue Name="c++11" Switch="std=c++11" DisplayName="C++11" Description="Norme du langage C++11.">
+    </EnumValue>
+    <EnumValue Name="c++14" Switch="std=c++14" DisplayName="C++14" Description="Norme du langage C++14.">
+    </EnumValue>
+    <EnumValue Name="c++1z" Switch="std=c++1z" DisplayName="C++17" Description="Norme du langage C++17.">
+    </EnumValue>
+    <EnumValue Name="gnu++98" Switch="std=gnu++98" DisplayName="C++03 (Dialecte GNU)" Description="Norme du langage C++03 (Dialecte GNU).">
+    </EnumValue>
+    <EnumValue Name="gnu++11" Switch="std=gnu++11" DisplayName="C++11 (Dialecte GNU)" Description="Norme du langage C++11 (Dialecte GNU).">
+    </EnumValue>
+    <EnumValue Name="gnu++14" Switch="std=gnu++14" DisplayName="C++14 (Dialecte GNU)" Description="Norme du langage C++14 (Dialecte GNU).">
+    </EnumValue>
+    <EnumValue Name="gnu++1z" Switch="std=gnu++1z" DisplayName="C++17 (dialecte GNU)" Description="Norme du langage C++17 (dialecte GNU)">
+    </EnumValue>
+  </EnumProperty>
+  <StringListProperty Name="PreprocessorDefinitions" DisplayName="Définitions de préprocesseur" Description="Définit des symboles de prétraitement pour votre fichier source. (-D)" Category="Preprocessor" Switch="D " F1Keyword="VC.Project.VCClangCompilerTool.PreprocessorDefinitions">
+  </StringListProperty>
+  <StringListProperty Name="UndefinePreprocessorDefinitions" DisplayName="Définitions de préprocesseur non définies" Description="Spécifie un ou plusieurs symboles de préprocesseur non définis.  (-U [macro])" Category="Preprocessor" Switch="U " F1Keyword="VC.Project.VCClangCompilerTool.UndefinePreprocessorDefinitions">
+  </StringListProperty>
+  <BoolProperty Name="UndefineAllPreprocessorDefinitions" DisplayName="Annulation de la définition de toutes les définitions du préprocesseur" Description="Annule la définition de toutes les valeurs de préprocesseur précédemment définies. (-undef)" Category="Preprocessor" Switch="undef" F1Keyword="VC.Project.VCClangCompilerTool.UndefineAllPreprocessorDefinitions">
+  </BoolProperty>
+  <BoolProperty Name="ShowIncludes" DisplayName="Affichage des fichiers Include" Description="Affiche la liste des fichiers include avec les résultats de la compilation.  (-H)" Category="Preprocessor" Switch="H" F1Keyword="VC.Project.VCClangCompilerTool.ShowIncludes">
+  </BoolProperty>
+  <EnumProperty Name="PrecompiledHeader" DisplayName="En-tête précompilé" Description="Créer/utiliser un en-tête précompilé : active la création ou l'utilisation d'un en-tête précompilé durant la build." Category="Precompiled Headers" F1Keyword="VC.Project.VCClangCompilerTool.PrecompiledHeader">
+    <EnumValue Name="Use" Switch="" DisplayName="Utilisation" Description="Utilisez un en-tête précompilé.">
+    </EnumValue>
+    <EnumValue Name="NotUsing" Switch="" DisplayName="Sans utiliser les en-têtes précompilés" Description="N'utilise pas un en-tête précompilé.">
+    </EnumValue>
+  </EnumProperty>
+  <StringProperty Subtype="file" Name="PrecompiledHeaderFile" DisplayName="Fichier d'en-tête précompilé" Description="Spécifie le nom du fichier d'en-tête à utiliser pour le fichier d'en-tête précompilé. Ce fichier est également ajouté aux 'Fichiers Include forcés' durant la génération" Category="Precompiled Headers" F1Keyword="VC.Project.VCClangCompilerTool.PrecompiledHeaderFile">
+  </StringProperty>
+  <StringProperty Name="PrecompiledHeaderOutputFileDirectory" DisplayName="Répertoire du fichier d'en-tête précompilé de sortie" Description="Spécifie le répertoire de l'en-tête précompilé généré. Ce répertoire est également ajouté aux 'Autres répertoires Include' durant la génération" Category="Precompiled Headers" F1Keyword="VC.Project.VCClangCompilerTool.PrecompiledHeaderOutputFileDirectory">
+  </StringProperty>
+  <EnumProperty Name="PrecompiledHeaderCompileAs" DisplayName="Compiler l'en-tête précompilé comme" Description="Sélectionnez l'option de langage de compilation pour le fichier d'en-tête précompilé (-x c-header, -x c++-header)." Category="Precompiled Headers" F1Keyword="VC.Project.VCClangCompilerTool.PrecompiledHeaderCompileAs">
+    <EnumValue Name="CompileAsC" Switch="x c-header" DisplayName="Compiler en code C" Description="Compiler en code C.">
+    </EnumValue>
+    <EnumValue Name="CompileAsCpp" Switch="x c++-header" DisplayName="Compiler en code C++" Description="Compiler en code C++.">
+    </EnumValue>
+  </EnumProperty>
+  <EnumProperty Name="CompileAs" DisplayName="Compiler en" Description="Sélectionnez l'option de langage de compilation pour les fichiers .c et .cpp. 'Default' sera détecté en fonction d'une extension .c ou .cpp. (-x c, -x c++)" Category="Advanced" F1Keyword="VC.Project.VCClangCompilerTool.CompileAs">
+    <EnumValue Name="Default" Switch="" DisplayName="Par défaut" Description="Par défaut.">
+    </EnumValue>
+    <EnumValue Name="CompileAsC" Switch="x c" DisplayName="Compiler en code C" Description="Compiler en code C.">
+    </EnumValue>
+    <EnumValue Name="CompileAsCpp" Switch="x c++" DisplayName="Compiler en code C++" Description="Compiler en code C++.">
+    </EnumValue>
+  </EnumProperty>
+  <StringListProperty Subtype="file" Name="ForcedIncludeFiles" DisplayName="Fichiers Include forcés" Description="un ou plusieurs fichiers Include forcés.     (-include [name])" Category="Advanced" Switch="include " F1Keyword="VC.Project.VCClangCompilerTool.ForcedIncludeFiles">
+  </StringListProperty>
+  <BoolProperty Name="UseMultiToolTask" DisplayName="Compilation multiprocesseur" Description="Compilation multiprocesseur." Category="Advanced" F1Keyword="VC.Project.VCClangCompilerTool.MultiProcessorCompilation">
+    <BoolProperty.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="" Label="" HasConfigurationCondition="true"/>
+    </BoolProperty.DataSource>
+  </BoolProperty>
+  <BoolProperty ReverseSwitch="fno-ms-compatibility" Name="MSCompatibility" DisplayName="Mode de compatibilité Microsoft" Description="Permet d'activer la compatibilité complète Microsoft Visual C++." Category="Advanced" Switch="fms-compatibility" F1Keyword="VC.Project.VCClangCompilerTool.MSCompatibility">
+  </BoolProperty>
+  <StringProperty Name="MSCompatibilityVersion" DisplayName="Version du mode de compatibilité Microsoft" Description="Valeur séparée par un point, qui représente le numéro de version du compilateur Microsoft à signaler dans _MSC_VER (0 = ne pas définir (valeur par défaut))." Category="Advanced" Switch="fms-compatibility-version=" F1Keyword="VC.Project.VCClangCompilerTool.MSCompatibilityVersion">
+  </StringProperty>
+  <BoolProperty ReverseSwitch="fno-ms-extensions" Name="MSExtensions" DisplayName="Prise en charge d'extension Microsoft" Description="Permet d'accepter certaines constructions non standard prises en charge par le compilateur Microsoft." Category="Advanced" Switch="fms-extensions" F1Keyword="VC.Project.VCClangCompilerTool.MSExtensions">
+  </BoolProperty>
+  <StringProperty Name="MSCompilerVersion" DisplayName="Version du compilateur Microsoft" Description="Numéro de version du compilateur Microsoft à signaler dans _MSC_VER (0 = ne pas définir (valeur par défaut))." Category="Advanced" Switch="fmsc-version=" F1Keyword="VC.Project.VCClangCompilerTool.MSCompilerVersion">
+  </StringProperty>
+  <StringProperty Name="AdditionalOptions" DisplayName="Options supplémentaires" Description="Options supplémentaires." Category="Command Line" F1Keyword="vc.project.AdditionalOptionsPage">
+  </StringProperty>
+  <BoolProperty Name="BuildingInIde" Visible="false">
+  </BoolProperty>
+</Rule>

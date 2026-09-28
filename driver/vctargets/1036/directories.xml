@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<Rule Name="ConfigurationDirectories" DisplayName="Répertoires VC++" Order="8" PageTemplate="generic" Description="Répertoires de recherche de l'outil" xmlns="http://schemas.microsoft.com/build/2009/properties">
+  <Rule.Categories>
+    <Category Name="VC++" DisplayName="Général" Description="Répertoires Visual C++"/>
+    <Category Name="References" DisplayName="Contenu du projet public" Description="Répertoires à utiliser dans les projets de référence"/>
+  </Rule.Categories>
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile"/>
+  </Rule.DataSource>
+  <StringListProperty Name="ExecutablePath" DisplayName="Répertoires d'exécutables" Description="Chemin d'accès à utiliser pour rechercher des fichiers exécutables lors de la génération d'un projet VC++.  Correspond à la variable d'environnement PATH." F1Keyword="VC.Project.VCDirectories.ExecutablePath" Category="VC++" Separator=";" Subtype="folder"/>
+  <StringListProperty Name="IncludePath" DisplayName="Répertoires Include" Description="Chemin d'accès à utiliser pour rechercher des fichiers Include lors de la génération d'un projet VC++.  Correspond à la variable d'environnement INCLUDE." F1Keyword="VC.Project.VCDirectories.IncludePath" Category="VC++" Separator=";" Subtype="folder"/>
+  <StringListProperty Name="ExternalIncludePath" DisplayName="Répertoires Include externes" Description="Chemin à traiter en tant que chemin externe/système durant la compilation, et à ignorer durant la vérification de l'actualisation de la build." F1Keyword="VC.Project.VCDirectories.ExternalIncludePath" Category="VC++" Separator=";" Subtype="folder"/>
+  <StringListProperty Name="ReferencePath" DisplayName="Répertoires de référence" Description="Chemin d'accès à utiliser pour rechercher des fichiers de métadonnées lors de la génération d'un projet VC++. Correspond à la variable d'environnement LIBPATH." F1Keyword="VC.Project.VCDirectories.ReferencePath" Category="VC++" Separator=";" Subtype="folder"/>
+  <StringListProperty Name="LibraryPath" DisplayName="Répertoires de bibliothèques" Description="Chemin d'accès à utiliser pour rechercher des fichiers bibliothèques lors de la génération d'un projet VC++.  Correspond à la variable d'environnement LIB." F1Keyword="VC.Project.VCDirectories.LibraryPath" Category="VC++" Separator=";" Subtype="folder"/>
+  <StringListProperty Name="LibraryWPath" DisplayName="Répertoires de la bibliothèque WinRT" Description="Chemin d'accès à utiliser pour rechercher des fichiers de métadonnées winmd lors de la génération d'un projet VC++. Est concaténé avec 'Reference Directories' dans LIBPATH." F1Keyword="VC.Project.VCDirectories.LibraryWPath" Category="VC++" Separator=";" Subtype="folder"/>
+  <StringListProperty Name="SourcePath" DisplayName="Répertoires sources" Description="Chemin d'accès à utiliser lors de la recherche de fichiers sources à utiliser pour Intellisense." F1Keyword="VC.Project.VCDirectories.SourcePath" Category="VC++" Separator=";" Subtype="folder"/>
+  <StringListProperty Name="ExcludePath" DisplayName="Exclure des répertoires" Description="Chemin d'accès à ignorer lors de la recherche de liens de dépendance." F1Keyword="VC.Project.VCDirectories.ExcludePath" Category="VC++" Separator=";" Subtype="folder"/>
+  <StringListProperty Name="PublicIncludeDirectories" Separator=";" Subtype="folder" DisplayName="Répertoires include publics" Description="Un ou plusieurs répertoires à ajouter automatiquement au chemin include dans les projets de référencement." Category="References" F1Keyword="VC.Project.VCConfiguration.PublicIncludeDirectories"/>
+  <BoolProperty Name="AllProjectIncludesArePublic" DisplayName="Tous les fichiers d'en-tête sont publics" Description="Spécifie si les répertoires ou tous les fichiers d'en-tête du projet doivent être automatiquement ajoutés au chemin include dans les projets de référence." Category="References" F1Keyword="VC.Project.VCConfiguration.AllProjectIncludesArePublic"/>                
+  <StringListProperty Name="PublicModuleDirectories" Separator=";" Subtype="folder" DisplayName="Répertoires de module C++ publics" Description="Un ou plusieurs répertoires de projet contenant des sources d'unité d'en-tête et/ou de module C++ à rendre automatiquement disponibles dans les projets de référence." Category="References" F1Keyword="VC.Project.VCConfiguration.PublicModuleDirectories"/>
+  <BoolProperty Name="AllProjectBMIsArePublic" DisplayName="Tous les modules sont publics" Description="Spécifie si tous les modules de projet et toutes les unités d'en-tête doivent être automatiquement disponibles dans les projets de référence." Category="References" F1Keyword="VC.Project.VCConfiguration.AllProjectBMIsArePublic"/>
+
+</Rule>

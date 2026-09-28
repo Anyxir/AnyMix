@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<Rule Name="CodeAnalysis" PageTemplate="tool" DisplayName="Code Analysis" Order="200" xmlns="http://schemas.microsoft.com/build/2009/properties" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+ 
+  <Rule.Categories>
+    <Category Name="General" DisplayName="Général" Description="Propriétés de Code Analysis"/>
+  </Rule.Categories>
+
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile" HasConfigurationCondition="true"/>
+  </Rule.DataSource>
+
+  <BoolProperty Name="RunCodeAnalysis" Category="General" DisplayName="Activer Code Analysis sur la build" Description="Tous les outils d’analyse de code activés s'exécutent au cours du processus de génération classique." F1Keyword="vs.codeanalysis.propertypages.native"/>
+
+  <BoolProperty Name="EnableMicrosoftCodeAnalysis" Category="General" DisplayName="Activer Microsoft Code Analysis" Description="L'exécution de Code Analysis entraîne l'utilisation des outils Microsoft Analysis." F1Keyword="vs.codeanalysis.propertypages.native"/>
+
+  <BoolProperty Name="EnableClangTidyCodeAnalysis" Category="General" DisplayName="Activer Clang-Tidy" Description="L'exécution de Code Analysis entraîne l'utilisation des outils d'analyse Clang-Tidy." F1Keyword="vs.codeanalysis.propertypages.native"/>
+</Rule>

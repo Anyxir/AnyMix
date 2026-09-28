@@ -1,0 +1,11 @@
+play init 00000000
+peak 0.00000 AnyMix B4 (ASIOVADPRO Driver)
+peak 0.00000 AnyMix B1 (ASIOVADPRO Driver)
+peak 0.00000 AnyMix B2 (ASIOVADPRO Driver)
+peak 0.00000 Mix 01 (3- ASIOVADPRO Driver)
+peak 0.00000 AnyMix B3 (ASIOVADPRO Driver)
+peak 0.00000 Mix 01 (2- ASIOVADPRO Driver)
+peak 0.20000 CABLE Output (VB-Audio Virtual Cable)
+peak 0.00000 AnyMix B5 (ASIOVADPRO Driver)
+peak 0.00000 Mix 01 (4- ASIOVADPRO Driver)
+peak 0.00000 Mix 01 (5- ASIOVADPRO Driver)

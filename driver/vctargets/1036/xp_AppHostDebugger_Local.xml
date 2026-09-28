@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<Rule Name="AppHostLocalDebugger" DisplayName="Débogueur local" PageTemplate="debugger" Order="100" Description="Options du débogueur local" xmlns:sys="clr-namespace:System;assembly=mscorlib" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns="http://schemas.microsoft.com/build/2009/properties">
+
+  <Rule.Metadata>
+    <sys:Guid x:Key="DebugTargetTypeCommandGuid">FEEA6E9D-77D8-423F-9EDE-3970CBB76125</sys:Guid>
+    <sys:UInt32 x:Key="DebugTargetTypeCommandId">0x200</sys:UInt32>
+  </Rule.Metadata>
+  <Rule.DataSource>
+    <DataSource Persistence="UserFile"/>
+  </Rule.DataSource>
+  <Rule.Categories>
+    <Category Name="StartOptions" DisplayName="Options de démarrage" Description="Options de démarrage"/>
+  </Rule.Categories>
+  <BoolProperty Name="DebuggerLaunchApplication" DisplayName="Lancer l'application" Category="StartOptions" Description="Indique si le lancement de l'application se produit immédiatement ou s'il intervient une fois que l'application a été déboguée."/>
+  <EnumProperty Name="DebuggerType" DisplayName="Type de débogueur" Category="StartOptions" Description="Désigne le débogueur à activer. Lorsque la valeur est Mixte, les débogueurs pour code managé et natif sont appelés.">
+    <EnumValue Name="NativeOnly" DisplayName="Natif uniquement" Description="Natif uniquement"/>
+    <EnumValue Name="ManagedOnly" DisplayName="Managé uniquement" Description="Managé uniquement"/>
+    <EnumValue Name="GPUOnly" DisplayName="GPU uniquement (C++ AMP)" Description="GPU uniquement (C++ AMP)"/>
+    <EnumValue Name="Script" DisplayName="Script uniquement" Description="Script uniquement"/>
+    <EnumValue Name="Mixed" DisplayName="Mixte (managé et natif)" Description="Mixte (managé et natif)"/>
+  </EnumProperty>
+  <DynamicEnumProperty Name="GPUDebuggerTargetType" DisplayName="Type d'accélérateur de débogage" EnumProvider="GPUTargets" Description="Type d'accélérateur de débogage à utiliser pour déboguer le code GPU.  (Disponible lorsque le débogueur GPU est actif.)"/>
+  <EnumProperty Name="GPURefDebuggerBreakOnAllThreads" DisplayName="Comportement du point d'arrêt par défaut GPU" Description="Définit la fréquence à laquelle le débogueur GPU s'arrête." F1Keyword="VC.Project.IVCGPURefDebugPageObject.BreakpointBehavior">
+    <EnumValue Name="GPURefBreakOncePerWarp" DisplayName="Arrêter une fois par retour à la ligne" Description="Arrêter une fois par retour à la ligne"/>
+    <EnumValue Name="GPURefBreakForCPUThread" DisplayName="Arrêter pour chaque thread (comportement du processeur)" Description="Arrêter pour chaque thread (comportement du processeur)"/>
+  </EnumProperty>
+</Rule>

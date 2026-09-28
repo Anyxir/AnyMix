@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<Rule Name="ConfigurationCustomBuildTool" DisplayName="Outil de génération personnalisée" Order="110" PageTemplate="tool" xmlns="http://schemas.microsoft.com/build/2009/properties">
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile" ItemType="CustomBuild" HasConfigurationCondition="true"/>
+  </Rule.DataSource>
+  <Rule.Categories>
+    <Category Name="General" DisplayName="Général" Description="Général"/>
+  </Rule.Categories>
+  <StringProperty Name="Command" Category="General" DisplayName="Ligne de commande" Description="Spécifie une ligne de commande pour l'outil de génération personnalisée." F1Keyword="VC.Project.VCCustomBuildTool.Command">
+    <StringProperty.ValueEditors>
+      <ValueEditor EditorType="DefaultCommandPropertyEditor" DisplayName="&lt;Modifier...&gt;"/>
+    </StringProperty.ValueEditors>
+  </StringProperty>
+  <StringProperty Name="Message" Category="General" DisplayName="Description" Description="Spécifie une description de l'outil de génération personnalisée." F1Keyword="VC.Project.VCCustomBuildTool.Message"/>
+  <StringListProperty Name="Outputs" Category="General" DisplayName="Sorties" Description="Spécifie les fichiers de sortie générés par l'outil de génération personnalisée." F1Keyword="VC.Project.VCCustomBuildTool.Outputs"/>
+  <StringListProperty Name="AdditionalInputs" Category="General" DisplayName="Dépendances supplémentaires" Description="Spécifie les fichiers d'entrée supplémentaires à utiliser pour l'outil de build personnalisée." F1Keyword="VC.Project.VCCustomBuildTool.AdditionalInputs"/>
+  <BoolProperty Name="VerifyInputsAndOutputsExist" Category="General" DisplayName="Vérifier l'existence des dépendances et des sorties" F1Keyword="VC.Project.VCCustomBuildTool.VerifyInputsAndOutputsExist" Description="Spécifie si la build doit vérifier l'existence de toutes les dépendances et sorties données, et si elle doit émettre un avertissement le cas échéant.">
+  </BoolProperty>
+  <BoolProperty Name="LinkObjects" Category="General" DisplayName="Lier les objets" F1Keyword="VC.Project.VCCustomBuildTool.LinkObjects" Description="Spécifier si les fichiers d'entrées et de sorties avec des extensions spécifiques (.obj, .lib, .res, .rsc) sont passés à l'Éditeur de liens.">
+  </BoolProperty>
+  <DynamicEnumProperty Name="OutputItemType" DisplayName="Ajouter des sorties au type d'élément" Category="General" Description="Spécifie le type d'élément auquel ajouter les fichiers de sortie afin qu'ils deviennent des sources pour d'autres outils de build." EnumProvider="ItemTypes" F1Keyword="VC.Project.VCCustomBuildTool.OutputsItemType">
+  </DynamicEnumProperty>
+  <BoolProperty Name="TreatOutputAsContent" Category="General" DisplayName="Considérer la sortie en tant que contenu" F1Keyword="VC.Project.VCCustomBuildTool.TreatOutputAsContent" Description="Spécifier si le fichier de sortie est un contenu pouvant être déployé.">
+  </BoolProperty>
+  <StringProperty Name="RootFolder" DisplayName="Dossier racine de contenu" Description="Dossier racine de contenu à utiliser pour la création de package." Category="General" Subtype="folder">
+  </StringProperty>
+  <BoolProperty Name="BuildInParallel" Category="General" DisplayName="Générer en parallèle" F1Keyword="VC.Project.VCCustomBuildTool.BuildInParallel" Description="Spécifie que cet élément peut être généré en parallèle avec d'autres éléments d'outils de build personnalisés.">
+  </BoolProperty>
+  <IntProperty Name="MaxProcesses" Category="General" DisplayName="Nombre maximal de processus" F1Keyword="VC.Project.VCCustomBuildTool.MaxProcesses" Description="Nombre maximal de cœurs d'UC à utiliser pour une génération en parallèle. La valeur 0 permet d'utiliser tous les processeurs disponibles.">
+  </IntProperty>
+  <IntProperty Name="MaxItemsInBatch" Category="General" DisplayName="Taille de lot maximale" F1Keyword="VC.Project.VCCustomBuildTool.MaxProcesses" Description="Nombre maximal d'éléments à exécuter ensemble durant la génération en parallèle. La valeur 0 permet de diviser les éléments uniformément en lots parallèles. La valeur 1 désactive le traitement par lot. Les lots plus grands entraînent une amélioration du niveau de performance, si l'outil de build personnalisé traite les éléments rapidement.">
+  </IntProperty>
+  <DynamicEnumProperty Name="CustomBuildAfterTargets" Category="General" DisplayName="Exécution après" Description="Spécifie les cibles de l'outil et de l'étape de build personnalisée à exécuter après." F1Keyword="VC.Project.VCCustomBuildStep.CustomBuildAfterTargets" EnumProvider="Targets">
+    <DynamicEnumProperty.DataSource>
+      <DataSource Persistence="ProjectFile" HasConfigurationCondition="true" ItemType=""/>
+    </DynamicEnumProperty.DataSource>
+    <DynamicEnumProperty.ProviderSettings>
+      <NameValuePair Name="Exclude" Value="^CustomBuild|^Compute"/>
+    </DynamicEnumProperty.ProviderSettings>
+  </DynamicEnumProperty>
+  <DynamicEnumProperty Name="CustomBuildBeforeTargets" Category="General" DisplayName="Exécution avant" Description="Spécifie les cibles de l'outil et de l'étape de build personnalisée à exécuter avant." F1Keyword="VC.Project.VCCustomBuildStep.CustomBuildBeforeTargets" EnumProvider="Targets">
+    <DynamicEnumProperty.DataSource>
+      <DataSource Persistence="ProjectFile" HasConfigurationCondition="true" ItemType=""/>
+    </DynamicEnumProperty.DataSource>
+    <DynamicEnumProperty.ProviderSettings>
+      <NameValuePair Name="Exclude" Value="^CustomBuild|^Compute"/>
+    </DynamicEnumProperty.ProviderSettings>
+  </DynamicEnumProperty>
+</Rule>

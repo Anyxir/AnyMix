@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.
+    Remote debug properties for Windows UWP apps-->
+<Rule Name="UWPRemoteDebugger" DisplayName="Ordinateur distant" PageTemplate="debugger" Order="400" Description="Options de débogueur distant" xmlns:sys="clr-namespace:System;assembly=mscorlib" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns="http://schemas.microsoft.com/build/2009/properties">
+  
+  <Rule.Metadata>
+    <sys:Guid x:Key="DebugTargetTypeCommandGuid">FEEA6E9D-77D8-423F-9EDE-3970CBB76125</sys:Guid>
+    <sys:UInt32 x:Key="DebugTargetTypeCommandId">0x400</sys:UInt32>
+  </Rule.Metadata>
+  <Rule.DataSource>
+    <DataSource Persistence="UserFile"/>
+  </Rule.DataSource>
+
+  <BoolProperty Name="DebuggerLaunchApplication" DisplayName="Lancer l'application" F1Keyword="VC.Project.IVCAppHostRemoteDebugPageObject.LaunchApplication" Description="Indique si le lancement de l'application se produit immédiatement ou s'il intervient une fois que l'application a été déboguée."/>
+  <BoolProperty Name="AllowLocalNetworkLoopback" DisplayName="Autoriser le bouclage de réseau local" F1Keyword="VC.Project.IVCAppHostLocalDebugPageObject.AllowLocalNetworkLoopback" Description="Lors du débogage d'une application du Windows Store, vous permet d'utiliser des services locaux, de déboguer le trafic réseau et d'utiliser un bouclage local pour communiquer avec des composants sur le même ordinateur."/>
+  <EnumProperty Name="DebuggerType" DisplayName="Type de débogueur" F1Keyword="VC.Project.IVCAppHostRemoteDebugPageObject.DebuggerType" Description="Spécifie le type de code à déboguer.">
+    <EnumProperty.Metadata>
+      <NameValuePair Name="IsDebugType" Value="true"/>
+    </EnumProperty.Metadata>
+    <EnumValue Name="NativeOnly" DisplayName="Natif uniquement"/>
+    <EnumValue Name="ManagedCore" DisplayName="Managé uniquement"/>
+    <EnumValue Name="GPUOnly" DisplayName="GPU uniquement (C++ AMP)"/>
+    <EnumValue Name="Script" DisplayName="Script uniquement"/>
+    <EnumValue Name="NativeWithManagedCore" DisplayName="Managé et natif"/>
+    <EnumValue Name="NativeWithScript" DisplayName="Script et natif"/>
+  </EnumProperty>
+  <StringProperty Name="DebuggerMachineName" DisplayName="Nom de l'ordinateur" F1Keyword="VC.Project.IVCAppHostRemoteDebugPageObject.MachineName" Description="Spécifie le nom de l'ordinateur à utiliser lors d'un débogage à distance.">
+    <StringProperty.ValueEditors>
+      <ValueEditor EditorType="CppUniversalRemoteDebuggerPropertyEditor" DisplayName="&lt;Rechercher...&gt;">
+        <ValueEditor.Metadata>
+          <NameValuePair Name="AuthenticationPropertyName" Value="DebuggerRequireAuthentication"/>
+        </ValueEditor.Metadata>
+      </ValueEditor>
+    </StringProperty.ValueEditors>
+  </StringProperty> 
+  <EnumProperty Name="DebuggerRequireAuthentication" DisplayName="Type d'authentification" F1Keyword="VC.Project.IVCAppHostRemoteDebugPageObject.Authentication" Description="Spécifie le genre d'authentification nécessaire durant le débogage sur des appareils distants.">
+    <EnumValue Name="True" DisplayName="Authentification Windows"/>
+    <EnumValue Name="False" DisplayName="Aucune authentification"/>
+    <EnumValue Name="Universal" DisplayName="Universel (protocole non chiffré)"/>
+  </EnumProperty>
+  <DynamicEnumProperty Name="GPUDebuggerTargetType" DisplayName="Type d'accélérateur de débogage" EnumProvider="GPUTargets" F1Keyword="VC.Project.IVCAppHostRemoteDebugPageObject.GPUDebuggerTargetType" Description="Type d'accélérateur de débogage à utiliser pour déboguer le code GPU. (Disponible lorsque le débogueur GPU est actif.)">
+    <DynamicEnumProperty.Metadata>
+      <NameValuePair Name="ParentPropertyName" Value="DebuggerType"/>
+      <NameValuePair Name="ParentPropertyValue" Value="GPUOnly"/>
+    </DynamicEnumProperty.Metadata>
+  </DynamicEnumProperty>
+  <EnumProperty Name="GPURefDebuggerBreakOnAllThreads" DisplayName="Comportement du point d'arrêt par défaut GPU" Description="Définit la fréquence à laquelle le débogueur GPU s'arrête." F1Keyword="VC.Project.IVCAppHostRemoteDebugPageObject.BreakpointBehavior">
+    <EnumValue Name="GPURefBreakOncePerWarp" DisplayName="Arrêter une fois par retour à la ligne" Description="Arrêter une fois par retour à la ligne"/>
+    <EnumValue Name="GPURefBreakForCPUThread" DisplayName="Arrêter pour chaque thread (comportement du processeur)" Description="Arrêter pour chaque thread (comportement du processeur)"/>
+    <EnumProperty.Metadata>
+      <NameValuePair Name="ParentPropertyName" Value="DebuggerType"/>
+      <NameValuePair Name="ParentPropertyValue" Value="GPUOnly"/>
+    </EnumProperty.Metadata>
+  </EnumProperty>
+  <BoolProperty Name="RemoteDebuggerDeployDebugCppRuntime" DisplayName="Déployer les bibliothèques runtime de débogage Visual C++" Description="Spécifie de déployer ou non les bibliothèques runtime de débogage pour la plateforme active (Win32, x64 ou ARM)." F1Keyword="VC.Project.IVCRemoteDebugPageObject.Remote"/>
+  <DynamicEnumProperty Name="DebuggerAmpDefaultAccelerator" DisplayName="Accélérateur par défaut de l'AMP" EnumProvider="AmpAccelerators" F1Keyword="VC.Project.IVCAppHostRemoteDebugPageObject.AmpDefaultAccelerator" Description="Remplacer la sélection de l'accélérateur par défaut de C++ AMP. La propriété ne s'applique pas lors du débogage du code managé.">
+  </DynamicEnumProperty>
+  <StringProperty Name="LayoutDir" DisplayName="Chemin de la disposition de package" Description="Emplacement de la disposition de package où la sortie binaire est copiée. Cet emplacement peut aussi contenir des ressources non binaires pour le projet."/>
+  <EnumProperty Name="RemoteDeploymentType" DisplayName="Type de déploiement à distance avancé" Description="Spécifie le type de déploiement à distance. Choisissez 'Copier sur l'appareil' pour copier physiquement la disposition de package sur l'appareil distant, ou 'Inscrire à partir du réseau' pour inscrire une disposition à partir d'un partage réseau.">
+    <EnumValue Name="CopyToDevice" DisplayName="Copier sur l'appareil"/>
+    <EnumValue Name="RegisterFromNetwork" DisplayName="Inscrire à partir du réseau"/>
+  </EnumProperty>
+  <StringProperty Name="PackageRegistrationPath" DisplayName="Chemin d'inscription du package" Description="Pour le déploiement de type 'Copier sur l'appareil', ceci représente l'emplacement physique où la disposition doit être copiée sur l'appareil distant. Il s'agit d'un paramètre optionnel. Pour 'Inscrire à partir du réseau',
+ceci représente l'emplacement réseau distant de la disposition de package. Il s'agit d'un paramètre obligatoire."/>
+  <BoolProperty Name="RemoveNonLayoutFiles" DisplayName="Supprimer de l'appareil les fichiers qui ne font pas partie de la disposition" Description="Spécifie si les fichiers qui ne font pas partie de la disposition sont supprimés de l'appareil cible durant le déploiement. Cela s'applique uniquement au déploiement de type 'Copier sur l'appareil'."/>
+  <StringProperty Name="CommandLineArgs" DisplayName="Arguments de ligne de commande" Description="Arguments de ligne de commande passés au débogueur."/>
+</Rule>

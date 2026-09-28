@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<Rule Name="VCEnvironmentVariables" DisplayName="Variables d'environnement VC++" Order="8" PageTemplate="generic" Description="Répertoires de recherche de l'outil" xmlns="http://schemas.microsoft.com/build/2009/properties">
+  <Rule.Categories>
+    <Category Name="Env" DisplayName="Environnement" Description="Variables d'environnement Visual C++"/>
+    <Category Name="Dirs" DisplayName="Répertoires" Description="Répertoires Visual C++"/>
+  </Rule.Categories>
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile"/>
+  </Rule.DataSource>
+  <StringListProperty Name="Path" DisplayName="PATH" Description="Chemin d'accès à utiliser pour rechercher des fichiers exécutables lors de la génération d'un projet VC++.  Correspond à la variable d'environnement PATH." F1Keyword="VC.Project.UseEnvVars.Path" Category="Env" Separator=";" ReadOnly="true"/>
+  <StringListProperty Name="Include" DisplayName="INCLUDE" Description="Chemin d'accès à utiliser pour rechercher des fichiers Include lors de la génération d'un projet VC++.  Correspond à la variable d'environnement INCLUDE." F1Keyword="VC.Project.UseEnvVars.Include" Category="Env" Separator=";" ReadOnly="true"/>
+  <StringListProperty Name="LibPath" DisplayName="LIBPATH" Description="Chemin d'accès à utiliser pour rechercher des fichiers provenant de #using lors de la génération d'un projet VC++.  Correspond à la variable d'environnement LIBPATH." F1Keyword="VC.Project.UseEnvVars.ReferencePath" Category="Env" Separator=";" ReadOnly="true"/>
+  <StringListProperty Name="Lib" DisplayName="LIB" Description="Chemin d'accès à utiliser pour rechercher des fichiers bibliothèques lors de la génération d'un projet VC++.  Correspond à la variable d'environnement LIB." F1Keyword="VC.Project.UseEnvVars.LibraryPath" Category="Env" Separator=";" ReadOnly="true"/>
+  <StringListProperty Name="SourcePath" DisplayName="Répertoires sources" Description="Chemin d'accès à utiliser lors de la recherche de fichiers sources à utiliser pour Intellisense." F1Keyword="VC.Project.VCDirectories.SourcePath" Category="Dirs" Separator=";" Subtype="folder"/>
+  <StringListProperty Name="ExcludePath" DisplayName="Exclure des répertoires" Description="Chemin d'accès à ignorer lors de la recherche de liens de dépendance." F1Keyword="VC.Project.UseEnvVars.ExcludePath" Category="Dirs" Separator=";" Subtype="folder"/>
+</Rule>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<Rule Name="CL" DisplayName="Général" PageTemplate="generic" Description="Général" SwitchPrefix="/" xmlns="http://schemas.microsoft.com/build/2009/properties">
+  <Rule.Categories>
+    <Category Name="General" DisplayName="Général" Description="Général"/>
+  </Rule.Categories>
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile" ItemType="ClCompile" Label="" HasConfigurationCondition="false"/>
+  </Rule.DataSource>
+  <StringListProperty Name="AdditionalIncludeDirectories" DisplayName="Chemin de recherche Include" Description="Spécifie un ou plusieurs répertoires à ajouter au chemin d'accès Include. En présence de plusieurs chemins, tapez une liste délimitée par des points-virgules.     (/I[path])" F1Keyword="VC.Project.VCCLCompilerTool.AdditionalIncludeDirectories" Switch="I" Category="General" Subtype="folder"/>
+  <StringListProperty Name="ForcedIncludeFiles" DisplayName="Fichiers Include forcés" Description="Un ou plusieurs fichiers Include forcés.     (/FI[name])" Category="General" Switch="FI" F1Keyword="VC.Project.VCCLCompilerTool.ForcedIncludeFiles" Subtype="file"/>
+  <StringListProperty Name="PreprocessorDefinitions" DisplayName="Définitions de préprocesseur" Description="Définit des symboles de prétraitement pour votre fichier source.     (/D[macro])" Category="General" Switch="D" F1Keyword="VC.Project.VCCLCompilerTool.PreprocessorDefinitions">
+  </StringListProperty>
+  <StringListProperty Name="UndefinePreprocessorDefinitions" DisplayName="Définitions de préprocesseur non définies" Description="Spécifie une ou plusieurs définitions de préprocesseur non définies.     (/U[macro])" Category="General" Switch="U" F1Keyword="VC.Project.VCCLCompilerTool.UndefinePreprocessorDefinitions">
+  </StringListProperty>
+</Rule>

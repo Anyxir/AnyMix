@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<Rule Name="XSD" PageTemplate="tool" DisplayName="Outil XML Data Generator Tool" SwitchPrefix="/" Order="120" xmlns="http://schemas.microsoft.com/build/2009/properties" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <Rule.Categories>
+    <Category Name="General" DisplayName="Général"/>
+    <Category Name="All Options" DisplayName="Toutes les options" Subtype="Search"/>
+    <Category Name="Command Line" DisplayName="Ligne de commande" Subtype="CommandLine"/>
+  </Rule.Categories>
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile" ItemType="Xsd" Label="" HasConfigurationCondition="true"/>
+  </Rule.DataSource>
+  <BoolProperty Name="SuppressStartupBanner" DisplayName="Suppression de la bannière de démarrage" Description="S'exécute sans afficher les informations de copyright Microsoft standard. (/nologo)" Category="General" Switch="nologo" F1Keyword="VC.Project.VCXMLDataGeneratorTool.SupressStartupBanner">
+  </BoolProperty>
+  <StringProperty Name="Namespace" DisplayName="Espace de noms" Description="Espace de noms à utiliser pour les fichiers de classe générés. L'espace de noms par défaut est l'espace de noms global. (/namespace:[chaîne])" Category="General" Switch="namespace:" F1Keyword="VC.Project.VCXMLDataGeneratorTool.Namespace">
+  </StringProperty>
+  <StringProperty Name="Language" DisplayName="Langage" Description="Langage à utiliser pour le code généré. Sélectionnez 'CS', 'VB', 'JS', 'VJS' ou 'CPP', ou spécifiez le nom complet d'une classe implémentant System.CodeDom.Compiler.CodeDomProvider. Le langage par défaut est 'CS' (CSharp). (/language:[chaîne])" Category="General" Switch="language:" Visible="false">
+  </StringProperty>
+  <EnumProperty Name="GenerateFromSchema" DisplayName="Génération à partir du schéma" Description="Types générés à partir du schéma" Category="General" F1Keyword="VC.Project.VCXMLDataGeneratorTool.GenerateFromSchema">
+    <EnumValue Name="classes" Switch="classes" DisplayName="Classes" Description="Génère les classes pour ce schéma. (/classes)">
+    </EnumValue>
+    <EnumValue Name="dataset" Switch="dataset" DisplayName="DataSet" Description="Génère le DataSet de sous-classe pour ce schéma. (/dataset)">
+    </EnumValue>
+  </EnumProperty>
+  <StringProperty Name="AdditionalOptions" DisplayName="Options supplémentaires" Description="Options supplémentaires" Category="Command Line" F1Keyword="vc.project.AdditionalOptionsPage">
+  </StringProperty>
+  <StringProperty Subtype="folder" Name="TrackerLogDirectory" DisplayName="Répertoire des journaux de Tracker" Description="Répertoire des journaux de Tracker." Category="General" IncludeInCommandLine="false" Visible="false">
+  </StringProperty>
+</Rule>

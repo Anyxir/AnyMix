@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<ProjectSchemaDefinitions xmlns="http://schemas.microsoft.com/build/2009/properties" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <Rule Name="ShaderGraphContentTask" PageTemplate="tool" DisplayName="Pipeline de contenu du graphique du nuanceur" SwitchPrefix="" Order="300">
+
+    <Rule.Categories>
+      <Category Name="General" DisplayName="Général"/>
+    </Rule.Categories>
+
+    <Rule.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="ShaderGraphContentTask" Label="" HasConfigurationCondition="true"/>
+    </Rule.DataSource>
+
+    <StringProperty Subtype="file" Name="ContentOutput" DisplayName="Sortie de contenu" Description="Fichier de sortie pour le contenu." Category="General" Switch="" F1Keyword="VC.Project.ShaderGraphContentTask.ContentOutput">
+    </StringProperty>
+
+  </Rule>
+
+  <ItemType Name="ShaderGraphContentTask" DisplayName="Pipeline de contenu du graphique du nuanceur"/>
+  <FileExtension Name="*.dgsl" ContentType="ShaderGraphContentTask"/>
+  <ContentType Name="ShaderGraphContentTask" DisplayName="Pipeline de contenu du graphique du nuanceur" ItemType="ShaderGraphContentTask"/>
+
+</ProjectSchemaDefinitions>

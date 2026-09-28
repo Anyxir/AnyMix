@@ -1,0 +1,2 @@
+﻿--- play only, engine is the reader ---
+DRIVER_TEST sec=30.013 playedFrames=1444320 playedPerSec=48122.9 mix=48000 buffer=4800 period100ns=100000

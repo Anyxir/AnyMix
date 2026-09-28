@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<Rule Name="ConfigurationNMake" DisplayName="NMake" PageTemplate="generic" Description="NMake" SwitchPrefix="/" Order="100" xmlns="http://schemas.microsoft.com/build/2009/properties">
+  <Rule.Categories>
+    <Category Name="General" DisplayName="Général" Description="Général"/>
+    <Category Name="IntelliSense" DisplayName="IntelliSense" Description="IntelliSense"/>
+  </Rule.Categories>
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile"/>
+  </Rule.DataSource>
+  <StringProperty Name="NMakeBuildCommandLine" DisplayName="Ligne de commande Build" Description="Spécifie la ligne de commande à exécuter pour la commande 'Build'." IncludeInCommandLine="false" Category="General" F1Keyword="VC.Project.VCNMakeTool.BuildCommandLine">
+    <StringProperty.ValueEditors>
+      <ValueEditor EditorType="DefaultCommandPropertyEditor" DisplayName="&lt;Modifier...&gt;"/>
+    </StringProperty.ValueEditors>
+  </StringProperty>
+  <StringProperty Name="NMakeReBuildCommandLine" DisplayName="Ligne de commande Rebuild All" Description="Spécifie la ligne de commande à exécuter pour la commande 'Rebuild All'." IncludeInCommandLine="false" Category="General" F1Keyword="VC.Project.VCNMakeTool.ReBuildCommandLine">
+    <StringProperty.ValueEditors>
+      <ValueEditor EditorType="DefaultCommandPropertyEditor" DisplayName="&lt;Modifier...&gt;"/>
+    </StringProperty.ValueEditors>
+  </StringProperty>
+  <StringProperty Name="NMakeCleanCommandLine" DisplayName="Ligne de commande Clean" Description="Spécifie la ligne de commande à exécuter pour la commande 'Clean'." IncludeInCommandLine="false" Category="General" F1Keyword="VC.Project.VCNMakeTool.CleanCommandLine">
+    <StringProperty.ValueEditors>
+      <ValueEditor EditorType="DefaultCommandPropertyEditor" DisplayName="&lt;Modifier...&gt;"/>
+    </StringProperty.ValueEditors>
+  </StringProperty> 
+  <StringProperty Name="NMakeCompileFileCommandLine" DisplayName="Compiler la ligne de commande du fichier" Description="Spécifie la ligne de commande à exécuter pour la commande 'Compiler' (CTRL+F7). La commande peut utiliser la propriété $(SelectedFiles) qui contiendra le(s) chemin(s) de fichier à compiler. La propriété $(NMakeBuildCommandLine) peut être utilisée pour les options 'Build Command Line'." Category="General" F1Keyword="VC.Project.VCNMakeTool.NMakeCompileFileCommandLine">
+    <StringProperty.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="NMakeCompile" PersistedName="NMakeCompileFileCommandLine"/>
+    </StringProperty.DataSource>
+  </StringProperty>
+  <StringProperty Name="NMakeOutput" DisplayName="Sortie" Description="Spécifie le fichier de sortie à générer." Category="General" IncludeInCommandLine="false" F1Keyword="VC.Project.VCNMakeTool.Output"/>
+  <StringListProperty Name="NMakePreprocessorDefinitions" DisplayName="Définitions de préprocesseur" Category="IntelliSense" Switch="D" Description="Spécifie les définitions du préprocesseur utilisées par les fichiers sources." F1Keyword="VC.Project.VCNMakeTool.PreprocessorDefinitions"/>
+  <StringListProperty Name="NMakeIncludeSearchPath" DisplayName="Chemin de recherche Include" Category="IntelliSense" Switch="I" Description="Spécifie le chemin de recherche Include pour résoudre les fichiers Include." Subtype="folder" F1Keyword="VC.Project.VCNMakeTool.IncludeSearchPath"/>
+  <StringListProperty Name="NMakeForcedIncludes" DisplayName="Fichiers Include forcés" Category="IntelliSense" Switch="FI" Description="Spécifie les fichiers Include forcés." Subtype="folder" F1Keyword="VC.Project.VCNMakeTool.ForcedIncludes"/>
+  <StringListProperty Name="NMakeAssemblySearchPath" DisplayName="Chemin de recherche des assemblys" Category="IntelliSense" Switch="AI" Description="Spécifie le chemin de recherche des assemblys pour résoudre les assemblys .NET utilisés." Subtype="folder" F1Keyword="VC.Project.VCNMakeTool.AssemblySearchPath"/>
+  <StringListProperty Name="NMakeForcedUsingAssemblies" DisplayName="Utilisation forcée des assemblys" Category="IntelliSense" Switch="FU" Description="Spécifie les assemblys dont l'utilisation est forcée dans les fichiers sources." F1Keyword="VC.Project.VCNMakeTool.ForcedUsingAssemblies"/>
+  <StringProperty Name="AdditionalOptions" DisplayName="Options supplémentaires" Category="IntelliSense" Description="Spécifie les commutateurs du compilateur supplémentaires utilisés par IntelliSense durant l'analyse du code C++."/>
+</Rule>

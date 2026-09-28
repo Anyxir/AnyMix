@@ -1,0 +1,354 @@
+[Version]
+Signature   = "$Windows NT$"
+Class       = MEDIA
+Provider    = %ProviderName%
+ClassGUID   = {4d36e96c-e325-11ce-bfc1-08002be10318}
+DriverVer   = 09/25/2026, 1.0.0.10
+CatalogFile = AnyMix.cat
+PnpLockDown = 1
+
+[SourceDisksNames]
+222="AnyMix Driver Disk","",222
+
+[SourceDisksFiles]
+AnyMix.sys=222
+
+[SignatureAttributes]
+AnyMix.sys=SignatureAttributes.DRM
+
+[SignatureAttributes.DRM]
+DRMLevel=1300
+
+[SignatureAttributes.PETrust]
+PETrust=true
+
+[Manufacturer]
+%MfgName%=ANYMIX,NTamd64.10.0...22000
+
+[ANYMIX.NTamd64.10.0...22000]
+%ANYMIX.DeviceDesc%=ANYMIX_SA, ROOT\AnyMix
+
+[DestinationDirs]
+ANYMIX_SA.CopyList=13
+
+[ANYMIX_SA.CopyList]
+AnyMix.sys
+
+[ANYMIX_SA.AddReg]
+HKR,,AssociatedFilters,,"wdmaud,swmidi,redbook"
+HKR,,Driver,,AnyMix.sys
+HKR,PowerSettings,SingleComponentMultiFxStates,3,1,0,0,0
+HKR,PowerSettings,ConservationIdleTime,3,3,0,0,0
+HKR,PowerSettings,PerformanceIdleTime,3,3,0,0,0
+HKR,PowerSettings,IdlePowerState,3,3,0,0,0
+HKR,Drivers,SubClasses,,"wave,midi,mixer"
+HKR,Drivers\wave\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\midi\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\mixer\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\wave\wdmaud.drv,Description,,%ANYMIX.DeviceDesc%
+HKR,Drivers\mixer\wdmaud.drv,Description,,%ANYMIX.DeviceDesc%
+
+[ANYMIX.I.Wave]
+AddReg=ANYMIX.I.Wave.AddReg
+[ANYMIX.I.Wave.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.Wave.szPname%
+
+[ANYMIX.I.Topology]
+AddReg=ANYMIX.I.Topology.AddReg
+[ANYMIX.I.Topology.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.Topology.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Association%,,%KSNODETYPE_ANY%
+HKR,EP\0,%PKEY_AudioEndpoint_Supports_EventDriven_Mode%,0x00010001,0x1
+
+[ANYMIX_SA.NT]
+Include=ks.inf,wdmaudio.inf
+Needs=KS.Registration, WDMAUDIO.Registration
+CopyFiles=ANYMIX_SA.CopyList
+AddReg=ANYMIX_SA.AddReg
+
+[ANYMIX_SA.NT.Interfaces]
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_WaveGame%, ANYMIX.I.WaveGame
+AddInterface=%KSCATEGORY_RENDER%, %KSNAME_WaveGame%, ANYMIX.I.WaveGame
+AddInterface=%KSCATEGORY_REALTIME%, %KSNAME_WaveGame%, ANYMIX.I.WaveGame
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_TopoGame%, ANYMIX.I.TopoGame
+AddInterface=%KSCATEGORY_TOPOLOGY%, %KSNAME_TopoGame%, ANYMIX.I.TopoGame
+
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_WaveChat%, ANYMIX.I.WaveChat
+AddInterface=%KSCATEGORY_RENDER%, %KSNAME_WaveChat%, ANYMIX.I.WaveChat
+AddInterface=%KSCATEGORY_REALTIME%, %KSNAME_WaveChat%, ANYMIX.I.WaveChat
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_TopoChat%, ANYMIX.I.TopoChat
+AddInterface=%KSCATEGORY_TOPOLOGY%, %KSNAME_TopoChat%, ANYMIX.I.TopoChat
+
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_WaveMusic%, ANYMIX.I.WaveMusic
+AddInterface=%KSCATEGORY_RENDER%, %KSNAME_WaveMusic%, ANYMIX.I.WaveMusic
+AddInterface=%KSCATEGORY_REALTIME%, %KSNAME_WaveMusic%, ANYMIX.I.WaveMusic
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_TopoMusic%, ANYMIX.I.TopoMusic
+AddInterface=%KSCATEGORY_TOPOLOGY%, %KSNAME_TopoMusic%, ANYMIX.I.TopoMusic
+
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_WaveAux%, ANYMIX.I.WaveAux
+AddInterface=%KSCATEGORY_RENDER%, %KSNAME_WaveAux%, ANYMIX.I.WaveAux
+AddInterface=%KSCATEGORY_REALTIME%, %KSNAME_WaveAux%, ANYMIX.I.WaveAux
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_TopoAux%, ANYMIX.I.TopoAux
+AddInterface=%KSCATEGORY_TOPOLOGY%, %KSNAME_TopoAux%, ANYMIX.I.TopoAux
+
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_WaveAdd%, ANYMIX.I.WaveAdd
+AddInterface=%KSCATEGORY_RENDER%, %KSNAME_WaveAdd%, ANYMIX.I.WaveAdd
+AddInterface=%KSCATEGORY_REALTIME%, %KSNAME_WaveAdd%, ANYMIX.I.WaveAdd
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_TopoAdd%, ANYMIX.I.TopoAdd
+AddInterface=%KSCATEGORY_TOPOLOGY%, %KSNAME_TopoAdd%, ANYMIX.I.TopoAdd
+
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_WaveB1%, ANYMIX.I.WaveB1
+AddInterface=%KSCATEGORY_REALTIME%, %KSNAME_WaveB1%, ANYMIX.I.WaveB1
+AddInterface=%KSCATEGORY_CAPTURE%, %KSNAME_WaveB1%, ANYMIX.I.WaveB1
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_TopoB1%, ANYMIX.I.TopoB1
+AddInterface=%KSCATEGORY_TOPOLOGY%, %KSNAME_TopoB1%, ANYMIX.I.TopoB1
+
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_WaveB2%, ANYMIX.I.WaveB2
+AddInterface=%KSCATEGORY_REALTIME%, %KSNAME_WaveB2%, ANYMIX.I.WaveB2
+AddInterface=%KSCATEGORY_CAPTURE%, %KSNAME_WaveB2%, ANYMIX.I.WaveB2
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_TopoB2%, ANYMIX.I.TopoB2
+AddInterface=%KSCATEGORY_TOPOLOGY%, %KSNAME_TopoB2%, ANYMIX.I.TopoB2
+
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_WaveB3%, ANYMIX.I.WaveB3
+AddInterface=%KSCATEGORY_REALTIME%, %KSNAME_WaveB3%, ANYMIX.I.WaveB3
+AddInterface=%KSCATEGORY_CAPTURE%, %KSNAME_WaveB3%, ANYMIX.I.WaveB3
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_TopoB3%, ANYMIX.I.TopoB3
+AddInterface=%KSCATEGORY_TOPOLOGY%, %KSNAME_TopoB3%, ANYMIX.I.TopoB3
+
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_WaveB4%, ANYMIX.I.WaveB4
+AddInterface=%KSCATEGORY_REALTIME%, %KSNAME_WaveB4%, ANYMIX.I.WaveB4
+AddInterface=%KSCATEGORY_CAPTURE%, %KSNAME_WaveB4%, ANYMIX.I.WaveB4
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_TopoB4%, ANYMIX.I.TopoB4
+AddInterface=%KSCATEGORY_TOPOLOGY%, %KSNAME_TopoB4%, ANYMIX.I.TopoB4
+
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_WaveB5%, ANYMIX.I.WaveB5
+AddInterface=%KSCATEGORY_REALTIME%, %KSNAME_WaveB5%, ANYMIX.I.WaveB5
+AddInterface=%KSCATEGORY_CAPTURE%, %KSNAME_WaveB5%, ANYMIX.I.WaveB5
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_TopoB5%, ANYMIX.I.TopoB5
+AddInterface=%KSCATEGORY_TOPOLOGY%, %KSNAME_TopoB5%, ANYMIX.I.TopoB5
+
+[ANYMIX.I.WaveGame]
+AddReg=ANYMIX.I.WaveGame.AddReg
+[ANYMIX.I.WaveGame.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.WaveGame.szPname%
+[ANYMIX.I.TopoGame]
+AddReg=ANYMIX.I.TopoGame.AddReg
+[ANYMIX.I.TopoGame.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.TopoGame.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Association%,,%KSNODETYPE_ANY%
+HKR,EP\0,%PKEY_DeviceInterface_FriendlyName%,,%ANYMIX.WaveGame.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Supports_EventDriven_Mode%,0x00010001,0x1
+
+[ANYMIX.I.WaveChat]
+AddReg=ANYMIX.I.WaveChat.AddReg
+[ANYMIX.I.WaveChat.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.WaveChat.szPname%
+[ANYMIX.I.TopoChat]
+AddReg=ANYMIX.I.TopoChat.AddReg
+[ANYMIX.I.TopoChat.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.TopoChat.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Association%,,%KSNODETYPE_ANY%
+HKR,EP\0,%PKEY_DeviceInterface_FriendlyName%,,%ANYMIX.WaveChat.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Supports_EventDriven_Mode%,0x00010001,0x1
+
+[ANYMIX.I.WaveMusic]
+AddReg=ANYMIX.I.WaveMusic.AddReg
+[ANYMIX.I.WaveMusic.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.WaveMusic.szPname%
+[ANYMIX.I.TopoMusic]
+AddReg=ANYMIX.I.TopoMusic.AddReg
+[ANYMIX.I.TopoMusic.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.TopoMusic.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Association%,,%KSNODETYPE_ANY%
+HKR,EP\0,%PKEY_DeviceInterface_FriendlyName%,,%ANYMIX.WaveMusic.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Supports_EventDriven_Mode%,0x00010001,0x1
+
+[ANYMIX.I.WaveAux]
+AddReg=ANYMIX.I.WaveAux.AddReg
+[ANYMIX.I.WaveAux.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.WaveAux.szPname%
+[ANYMIX.I.TopoAux]
+AddReg=ANYMIX.I.TopoAux.AddReg
+[ANYMIX.I.TopoAux.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.TopoAux.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Association%,,%KSNODETYPE_ANY%
+HKR,EP\0,%PKEY_DeviceInterface_FriendlyName%,,%ANYMIX.WaveAux.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Supports_EventDriven_Mode%,0x00010001,0x1
+
+[ANYMIX.I.WaveAdd]
+AddReg=ANYMIX.I.WaveAdd.AddReg
+[ANYMIX.I.WaveAdd.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.WaveAdd.szPname%
+[ANYMIX.I.TopoAdd]
+AddReg=ANYMIX.I.TopoAdd.AddReg
+[ANYMIX.I.TopoAdd.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.TopoAdd.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Association%,,%KSNODETYPE_ANY%
+HKR,EP\0,%PKEY_DeviceInterface_FriendlyName%,,%ANYMIX.WaveAdd.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Supports_EventDriven_Mode%,0x00010001,0x1
+
+[ANYMIX.I.WaveB1]
+AddReg=ANYMIX.I.WaveB1.AddReg
+[ANYMIX.I.WaveB1.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.WaveB1.szPname%
+[ANYMIX.I.TopoB1]
+AddReg=ANYMIX.I.TopoB1.AddReg
+[ANYMIX.I.TopoB1.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.TopoB1.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Association%,,%KSNODETYPE_ANY%
+HKR,EP\0,%PKEY_DeviceInterface_FriendlyName%,,%ANYMIX.WaveB1.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Supports_EventDriven_Mode%,0x00010001,0x1
+
+[ANYMIX.I.WaveB2]
+AddReg=ANYMIX.I.WaveB2.AddReg
+[ANYMIX.I.WaveB2.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.WaveB2.szPname%
+[ANYMIX.I.TopoB2]
+AddReg=ANYMIX.I.TopoB2.AddReg
+[ANYMIX.I.TopoB2.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.TopoB2.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Association%,,%KSNODETYPE_ANY%
+HKR,EP\0,%PKEY_DeviceInterface_FriendlyName%,,%ANYMIX.WaveB2.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Supports_EventDriven_Mode%,0x00010001,0x1
+
+[ANYMIX.I.WaveB3]
+AddReg=ANYMIX.I.WaveB3.AddReg
+[ANYMIX.I.WaveB3.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.WaveB3.szPname%
+[ANYMIX.I.TopoB3]
+AddReg=ANYMIX.I.TopoB3.AddReg
+[ANYMIX.I.TopoB3.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.TopoB3.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Association%,,%KSNODETYPE_ANY%
+HKR,EP\0,%PKEY_DeviceInterface_FriendlyName%,,%ANYMIX.WaveB3.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Supports_EventDriven_Mode%,0x00010001,0x1
+
+[ANYMIX.I.WaveB4]
+AddReg=ANYMIX.I.WaveB4.AddReg
+[ANYMIX.I.WaveB4.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.WaveB4.szPname%
+[ANYMIX.I.TopoB4]
+AddReg=ANYMIX.I.TopoB4.AddReg
+[ANYMIX.I.TopoB4.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.TopoB4.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Association%,,%KSNODETYPE_ANY%
+HKR,EP\0,%PKEY_DeviceInterface_FriendlyName%,,%ANYMIX.WaveB4.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Supports_EventDriven_Mode%,0x00010001,0x1
+
+[ANYMIX.I.WaveB5]
+AddReg=ANYMIX.I.WaveB5.AddReg
+[ANYMIX.I.WaveB5.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.WaveB5.szPname%
+[ANYMIX.I.TopoB5]
+AddReg=ANYMIX.I.TopoB5.AddReg
+[ANYMIX.I.TopoB5.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%ANYMIX.TopoB5.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Association%,,%KSNODETYPE_ANY%
+HKR,EP\0,%PKEY_DeviceInterface_FriendlyName%,,%ANYMIX.WaveB5.szPname%
+HKR,EP\0,%PKEY_AudioEndpoint_Supports_EventDriven_Mode%,0x00010001,0x1
+
+[ANYMIX_SA.NT.Services]
+AddService=AnyMix,0x00000002,AnyMix_Service_Inst
+
+[AnyMix_Service_Inst]
+DisplayName=%AnyMix.SvcDesc%
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%13%\AnyMix.sys
+
+[ANYMIX_SA.NT.HW]
+AddReg = AUDIOHW.AddReg
+
+[AUDIOHW.AddReg]
+HKR,,DeviceType,0x10001,0x0000001D
+HKR,,Security,,"D:P(A;;GA;;;SY)(A;;GRGWGX;;;BA)(A;;GRGWGX;;;WD)(A;;GRGWGX;;;RC)"
+
+[ANYMIX_SA.NT.Wdf]
+KmdfService = AnyMix, ANYMIX_SA_WdfSect
+[ANYMIX_SA_WdfSect]
+KmdfLibraryVersion = 1.15
+
+[Strings]
+KSNAME_WaveGame="WaveGame"
+KSNAME_TopoGame="TopoGame"
+KSNAME_WaveChat="WaveChat"
+KSNAME_TopoChat="TopoChat"
+KSNAME_WaveMusic="WaveMusic"
+KSNAME_TopoMusic="TopoMusic"
+KSNAME_WaveAux="WaveAux"
+KSNAME_TopoAux="TopoAux"
+KSNAME_WaveAdd="WaveAdd"
+KSNAME_TopoAdd="TopoAdd"
+KSNAME_WaveB1="WaveB1"
+KSNAME_TopoB1="TopoB1"
+KSNAME_WaveB2="WaveB2"
+KSNAME_TopoB2="TopoB2"
+KSNAME_WaveB3="WaveB3"
+KSNAME_TopoB3="TopoB3"
+KSNAME_WaveB4="WaveB4"
+KSNAME_TopoB4="TopoB4"
+KSNAME_WaveB5="WaveB5"
+KSNAME_TopoB5="TopoB5"
+
+Proxy.CLSID="{17CCA71B-ECD7-11D0-B908-00A0C9223196}"
+KSCATEGORY_AUDIO="{6994AD04-93EF-11D0-A3CC-00A0C9223196}"
+KSCATEGORY_RENDER="{65E8773E-8F56-11D0-A3B9-00A0C9223196}"
+KSCATEGORY_CAPTURE="{65E8773D-8F56-11D0-A3B9-00A0C9223196}"
+KSCATEGORY_REALTIME="{EB115FFC-10C8-4964-831D-6DCB02E6F23F}"
+KSCATEGORY_TOPOLOGY="{DDA54A40-1E4C-11D1-A050-405705C10000}"
+KSNODETYPE_ANY="{00000000-0000-0000-0000-000000000000}"
+PKEY_AudioEndpoint_Association="{1DA5D803-D492-4EDD-8C23-E0C0FFEE7F0E},2"
+PKEY_DeviceInterface_FriendlyName="{b3f8fa53-0004-438e-9003-51a46e139bfc},6"
+PKEY_AudioEndpoint_Supports_EventDriven_Mode="{1DA5D803-D492-4EDD-8C23-E0C0FFEE7F0E},7"
+
+ProviderName="AnyMix"
+MfgName="AnyMix"
+MsCopyRight="AnyMix"
+
+ANYMIX.DeviceDesc="AnyMix"
+AnyMix.SvcDesc="AnyMix"
+
+ANYMIX.WaveGame.szPname="AnyMix Game"
+ANYMIX.TopoGame.szPname="AnyMix Game Bus"
+ANYMIX.WaveChat.szPname="AnyMix Chat"
+ANYMIX.TopoChat.szPname="AnyMix Chat Bus"
+ANYMIX.WaveMusic.szPname="AnyMix Music"
+ANYMIX.TopoMusic.szPname="AnyMix Music Bus"
+ANYMIX.WaveAux.szPname="AnyMix Aux"
+ANYMIX.TopoAux.szPname="AnyMix Aux Bus"
+ANYMIX.WaveAdd.szPname="AnyMix Add"
+ANYMIX.TopoAdd.szPname="AnyMix Add Bus"
+ANYMIX.WaveB1.szPname="AnyMix B1"
+ANYMIX.TopoB1.szPname="AnyMix B1 Bus"
+ANYMIX.WaveB2.szPname="AnyMix B2"
+ANYMIX.TopoB2.szPname="AnyMix B2 Bus"
+ANYMIX.WaveB3.szPname="AnyMix B3"
+ANYMIX.TopoB3.szPname="AnyMix B3 Bus"
+ANYMIX.WaveB4.szPname="AnyMix B4"
+ANYMIX.TopoB4.szPname="AnyMix B4 Bus"
+ANYMIX.WaveB5.szPname="AnyMix B5"
+ANYMIX.TopoB5.szPname="AnyMix B5 Bus"
+

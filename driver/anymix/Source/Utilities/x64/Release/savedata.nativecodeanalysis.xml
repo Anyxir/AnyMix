@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\akram\Downloads\vb\driver\anymix\Source\Utilities\</FILEPATH>
+      <FILENAME>savedata.cpp</FILENAME>
+      <LINE>520</LINE>
+      <COLUMN>27</COLUMN>
+    </SFA>
+    <DEFECTCODE>6340</DEFECTCODE>
+    <DESCRIPTION>Incompatibilité sur le signe : 'unsigned long' transmis en tant que _Param_(6) lorsqu'un type signed est requis dans l'appel à 'RtlStringCchPrintfW'.</DESCRIPTION>
+    <FUNCTION>CSaveData::Initialize</FUNCTION>
+    <DECORATED>?Initialize@CSaveData@@QEAAJXZ</DECORATED>
+    <FUNCLINE>442</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

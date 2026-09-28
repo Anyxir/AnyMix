@@ -1,0 +1,258 @@
+AnyMix audio diagnostics
+engine rate=48000 channels=2 block=512 prebuffer=1024
+t=2760296 blocks=0 intervalUs min=18446744073709551615 avg=0 max=0 processUs avg=0 max=0 missed=0
+wasapi buffer=0 padding=0 spaceAvg=0 spaceN=0 written=0 renderUnderruns=0
+driver reads=0 reported=0 min=4294967295 max=0 avg=0 padded=0 empty=0 short=0
+pop req=0 actual=0 fillBeforeAvg=0 fillAfterAvg=0 silenceFrames=0 underrunFrames=0 overrun=0 ring=0 min=4294967295 max=0 ringEmpty=0 starvation=0 silenceOut=0 wasapiZero=0 firstZero=0 activeFillAvg=0 activeN=0
+t=2760812 blocks=0 intervalUs min=10 avg=4846 max=7286 processUs avg=0 max=0 missed=0
+wasapi buffer=2048 padding=0 spaceAvg=2042 spaceN=71 written=0 renderUnderruns=129
+driver reads=0 reported=0 min=4294967295 max=0 avg=0 padded=0 empty=0 short=0
+pop req=0 actual=0 fillBeforeAvg=0 fillAfterAvg=0 silenceFrames=0 underrunFrames=0 overrun=0 ring=0 min=4294967295 max=0 ringEmpty=0 starvation=0 silenceOut=0 wasapiZero=0 firstZero=0 activeFillAvg=0 activeN=0
+t=2761312 blocks=0 intervalUs min=10 avg=4924 max=7286 processUs avg=0 max=0 missed=0
+wasapi buffer=2048 padding=0 spaceAvg=2045 spaceN=172 written=0 renderUnderruns=331
+driver reads=0 reported=0 min=4294967295 max=0 avg=0 padded=0 empty=0 short=0
+pop req=0 actual=0 fillBeforeAvg=0 fillAfterAvg=0 silenceFrames=0 underrunFrames=0 overrun=0 ring=0 min=4294967295 max=0 ringEmpty=0 starvation=0 silenceOut=0 wasapiZero=0 firstZero=0 activeFillAvg=0 activeN=0
+t=2761812 blocks=0 intervalUs min=10 avg=4952 max=7286 processUs avg=0 max=0 missed=0
+wasapi buffer=2048 padding=0 spaceAvg=2046 spaceN=272 written=0 renderUnderruns=531
+driver reads=0 reported=0 min=4294967295 max=0 avg=0 padded=0 empty=0 short=0
+pop req=0 actual=0 fillBeforeAvg=0 fillAfterAvg=0 silenceFrames=0 underrunFrames=0 overrun=0 ring=0 min=4294967295 max=0 ringEmpty=0 starvation=0 silenceOut=0 wasapiZero=0 firstZero=0 activeFillAvg=0 activeN=0
+t=2762328 blocks=0 intervalUs min=10 avg=4965 max=7286 processUs avg=0 max=0 missed=0
+wasapi buffer=2048 padding=0 spaceAvg=2046 spaceN=372 written=0 renderUnderruns=731
+driver reads=0 reported=0 min=4294967295 max=0 avg=0 padded=0 empty=0 short=0
+pop req=0 actual=0 fillBeforeAvg=0 fillAfterAvg=0 silenceFrames=0 underrunFrames=0 overrun=0 ring=0 min=4294967295 max=0 ringEmpty=0 starvation=0 silenceOut=0 wasapiZero=0 firstZero=0 activeFillAvg=0 activeN=0
+t=2762828 blocks=53 intervalUs min=10 avg=4474 max=7286 processUs avg=67 max=179 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=1737 spaceN=526 written=45120 renderUnderruns=757
+driver reads=57 reported=23520 min=16 max=512 avg=412 padded=960 empty=3 short=49
+pop req=112800 actual=22560 fillBeforeAvg=90 fillAfterAvg=5 silenceFrames=0 underrunFrames=50144 overrun=0 ring=0 min=0 max=1440 ringEmpty=89 starvation=134 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=169 activeN=142
+t=2763328 blocks=113 intervalUs min=10 avg=4157 max=7286 processUs avg=65 max=179 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=1537 spaceN=687 written=93216 renderUnderruns=757
+driver reads=117 reported=47568 min=16 max=512 avg=406 padded=960 empty=3 short=99
+pop req=233040 actual=46608 fillBeforeAvg=85 fillAfterAvg=2 silenceFrames=0 underrunFrames=108528 overrun=0 ring=0 min=0 max=1440 ringEmpty=190 starvation=285 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=159 activeN=303
+t=2763828 blocks=170 intervalUs min=10 avg=3976 max=7286 processUs avg=66 max=179 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=1415 spaceN=844 written=141120 renderUnderruns=757
+driver reads=174 reported=71520 min=16 max=512 avg=411 padded=960 empty=3 short=149
+pop req=352800 actual=70560 fillBeforeAvg=85 fillAfterAvg=2 silenceFrames=0 underrunFrames=164960 overrun=0 ring=0 min=0 max=1440 ringEmpty=290 starvation=435 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=157 activeN=460
+t=2764343 blocks=232 intervalUs min=10 avg=3834 max=7286 processUs avg=65 max=179 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=1327 spaceN=1008 written=190080 renderUnderruns=757
+driver reads=236 reported=96000 min=16 max=512 avg=406 padded=960 empty=3 short=200
+pop req=475200 actual=95040 fillBeforeAvg=83 fillAfterAvg=1 silenceFrames=0 underrunFrames=224448 overrun=0 ring=0 min=0 max=1440 ringEmpty=392 starvation=588 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=155 activeN=624
+t=2764843 blocks=290 intervalUs min=10 avg=3744 max=7295 processUs avg=66 max=179 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=1267 spaceN=1166 written=238080 renderUnderruns=757
+driver reads=294 reported=120000 min=16 max=512 avg=408 padded=960 empty=3 short=250
+pop req=595200 actual=119040 fillBeforeAvg=83 fillAfterAvg=1 silenceFrames=0 underrunFrames=281344 overrun=0 ring=0 min=0 max=1440 ringEmpty=492 starvation=738 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=154 activeN=782
+t=2765343 blocks=350 intervalUs min=10 avg=3669 max=7295 processUs avg=66 max=179 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=1220 spaceN=1326 written=286080 renderUnderruns=757
+driver reads=354 reported=144000 min=16 max=512 avg=406 padded=960 empty=3 short=300
+pop req=715200 actual=143040 fillBeforeAvg=82 fillAfterAvg=1 silenceFrames=0 underrunFrames=339264 overrun=0 ring=0 min=0 max=1440 ringEmpty=592 starvation=888 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=154 activeN=942
+t=2765843 blocks=411 intervalUs min=10 avg=3610 max=7295 processUs avg=66 max=179 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=1183 spaceN=1488 written=335040 renderUnderruns=757
+driver reads=415 reported=168480 min=16 max=512 avg=405 padded=960 empty=3 short=351
+pop req=837600 actual=167520 fillBeforeAvg=82 fillAfterAvg=1 silenceFrames=0 underrunFrames=397728 overrun=0 ring=0 min=0 max=1440 ringEmpty=693 starvation=1040 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=153 activeN=1104
+t=2766343 blocks=468 intervalUs min=10 avg=3569 max=7295 processUs avg=66 max=179 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=1152 spaceN=1645 written=383040 renderUnderruns=757
+driver reads=473 reported=192480 min=16 max=512 avg=406 padded=960 empty=3 short=402
+pop req=957600 actual=191520 fillBeforeAvg=82 fillAfterAvg=1 silenceFrames=0 underrunFrames=454112 overrun=0 ring=0 min=0 max=1440 ringEmpty=793 starvation=1190 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=153 activeN=1261
+t=2766859 blocks=528 intervalUs min=10 avg=3529 max=7295 processUs avg=66 max=179 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=1127 spaceN=1806 written=431040 renderUnderruns=757
+driver reads=533 reported=216480 min=16 max=512 avg=406 padded=960 empty=3 short=452
+pop req=1077600 actual=215520 fillBeforeAvg=82 fillAfterAvg=0 silenceFrames=0 underrunFrames=512544 overrun=0 ring=0 min=0 max=1440 ringEmpty=894 starvation=1341 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=153 activeN=1422
+t=2767359 blocks=588 intervalUs min=10 avg=3498 max=7295 processUs avg=66 max=211 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=1105 spaceN=1968 written=480000 renderUnderruns=757
+driver reads=593 reported=240960 min=16 max=512 avg=406 padded=960 empty=3 short=503
+pop req=1200000 actual=240000 fillBeforeAvg=82 fillAfterAvg=0 silenceFrames=0 underrunFrames=571008 overrun=0 ring=0 min=0 max=1440 ringEmpty=996 starvation=1494 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=153 activeN=1584
+t=2767859 blocks=648 intervalUs min=10 avg=3470 max=7295 processUs avg=66 max=211 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=1086 spaceN=2128 written=528096 renderUnderruns=757
+driver reads=653 reported=265008 min=16 max=512 avg=405 padded=960 empty=3 short=553
+pop req=1320240 actual=264048 fillBeforeAvg=82 fillAfterAvg=0 silenceFrames=0 underrunFrames=628880 overrun=0 ring=0 min=0 max=1440 ringEmpty=1096 starvation=1644 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=153 activeN=1744
+t=2768375 blocks=708 intervalUs min=10 avg=3447 max=7295 processUs avg=66 max=211 missed=0
+wasapi buffer=2048 padding=1920 spaceAvg=1071 spaceN=2290 written=577920 renderUnderruns=757
+driver reads=713 reported=289920 min=16 max=512 avg=406 padded=960 empty=3 short=605
+pop req=1444800 actual=288960 fillBeforeAvg=82 fillAfterAvg=0 silenceFrames=0 underrunFrames=686912 overrun=0 ring=0 min=0 max=1440 ringEmpty=1198 starvation=1798 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=153 activeN=1906
+t=2768875 blocks=771 intervalUs min=10 avg=3422 max=7295 processUs avg=66 max=211 missed=0
+wasapi buffer=2048 padding=1920 spaceAvg=1056 spaceN=2453 written=625920 renderUnderruns=757
+driver reads=777 reported=313920 min=16 max=512 avg=404 padded=960 empty=3 short=656
+pop req=1564800 actual=312960 fillBeforeAvg=82 fillAfterAvg=0 silenceFrames=0 underrunFrames=746368 overrun=0 ring=0 min=0 max=1440 ringEmpty=1298 starvation=1948 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=152 activeN=2069
+t=2769375 blocks=831 intervalUs min=10 avg=3405 max=7295 processUs avg=66 max=211 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=1044 spaceN=2614 written=673920 renderUnderruns=757
+driver reads=837 reported=337920 min=16 max=512 avg=403 padded=960 empty=3 short=706
+pop req=1684800 actual=336960 fillBeforeAvg=81 fillAfterAvg=0 silenceFrames=0 underrunFrames=804800 overrun=0 ring=0 min=0 max=1440 ringEmpty=1399 starvation=2099 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=152 activeN=2230
+t=2769875 blocks=892 intervalUs min=10 avg=3387 max=7295 processUs avg=65 max=211 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=1034 spaceN=2776 written=721920 renderUnderruns=757
+driver reads=898 reported=361920 min=16 max=512 avg=403 padded=960 empty=3 short=756
+pop req=1804800 actual=360960 fillBeforeAvg=81 fillAfterAvg=0 silenceFrames=0 underrunFrames=863744 overrun=0 ring=0 min=0 max=1440 ringEmpty=1500 starvation=2250 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=152 activeN=2392
+t=2770375 blocks=956 intervalUs min=10 avg=3368 max=7295 processUs avg=65 max=211 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=1023 spaceN=2940 written=770016 renderUnderruns=757
+driver reads=963 reported=385968 min=16 max=512 avg=400 padded=960 empty=3 short=807
+pop req=1925040 actual=385008 fillBeforeAvg=81 fillAfterAvg=0 silenceFrames=0 underrunFrames=923664 overrun=0 ring=0 min=0 max=1440 ringEmpty=1600 starvation=2400 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=152 activeN=2556
+t=2770890 blocks=1014 intervalUs min=10 avg=3359 max=7295 processUs avg=65 max=211 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=1015 spaceN=3099 written=818880 renderUnderruns=757
+driver reads=1021 reported=410400 min=16 max=512 avg=401 padded=960 empty=3 short=858
+pop req=2047200 actual=409440 fillBeforeAvg=81 fillAfterAvg=0 silenceFrames=0 underrunFrames=980640 overrun=0 ring=0 min=0 max=1440 ringEmpty=1701 starvation=2552 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=152 activeN=2715
+t=2771390 blocks=1072 intervalUs min=10 avg=3350 max=7295 processUs avg=65 max=211 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=1009 spaceN=3258 written=866880 renderUnderruns=757
+driver reads=1079 reported=434400 min=16 max=512 avg=402 padded=960 empty=3 short=908
+pop req=2167200 actual=433440 fillBeforeAvg=81 fillAfterAvg=0 silenceFrames=0 underrunFrames=1038048 overrun=0 ring=0 min=0 max=1440 ringEmpty=1802 starvation=2703 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=152 activeN=2874
+t=2771890 blocks=1132 intervalUs min=10 avg=3340 max=7295 processUs avg=65 max=211 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=1002 spaceN=3419 written=915936 renderUnderruns=757
+driver reads=1139 reported=458928 min=16 max=512 avg=402 padded=960 empty=3 short=959
+pop req=2289840 actual=457968 fillBeforeAvg=81 fillAfterAvg=0 silenceFrames=0 underrunFrames=1095952 overrun=0 ring=0 min=0 max=1440 ringEmpty=1903 starvation=2855 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=152 activeN=3035
+t=2772406 blocks=1192 intervalUs min=10 avg=3330 max=7295 processUs avg=65 max=211 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=995 spaceN=3580 written=963840 renderUnderruns=757
+driver reads=1199 reported=482880 min=16 max=512 avg=402 padded=960 empty=3 short=1009
+pop req=2409600 actual=481920 fillBeforeAvg=81 fillAfterAvg=0 silenceFrames=0 underrunFrames=1154432 overrun=0 ring=0 min=0 max=1440 ringEmpty=2004 starvation=3006 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=152 activeN=3196
+t=2772906 blocks=1254 intervalUs min=10 avg=3321 max=7295 processUs avg=66 max=289 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=989 spaceN=3743 written=1012800 renderUnderruns=757
+driver reads=1261 reported=507360 min=16 max=512 avg=402 padded=960 empty=3 short=1060
+pop req=2532000 actual=506400 fillBeforeAvg=81 fillAfterAvg=0 silenceFrames=0 underrunFrames=1213408 overrun=0 ring=0 min=0 max=1440 ringEmpty=2105 starvation=3158 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=152 activeN=3359
+t=2773406 blocks=1316 intervalUs min=10 avg=3311 max=7295 processUs avg=65 max=289 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=984 spaceN=3906 written=1060896 renderUnderruns=757
+driver reads=1323 reported=531408 min=16 max=512 avg=401 padded=960 empty=3 short=1110
+pop req=2652240 actual=530448 fillBeforeAvg=81 fillAfterAvg=0 silenceFrames=0 underrunFrames=1272816 overrun=0 ring=0 min=0 max=1440 ringEmpty=2206 starvation=3309 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=151 activeN=3522
+t=2773921 blocks=1377 intervalUs min=10 avg=3304 max=7295 processUs avg=66 max=387 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=978 spaceN=4069 written=1109760 renderUnderruns=757
+driver reads=1384 reported=555840 min=16 max=512 avg=401 padded=960 empty=3 short=1161
+pop req=2774400 actual=554880 fillBeforeAvg=81 fillAfterAvg=0 silenceFrames=0 underrunFrames=1331840 overrun=0 ring=0 min=0 max=1440 ringEmpty=2308 starvation=3462 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=151 activeN=3685
+t=2774421 blocks=1436 intervalUs min=10 avg=3298 max=7295 processUs avg=66 max=387 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=973 spaceN=4228 written=1157856 renderUnderruns=757
+driver reads=1444 reported=579888 min=16 max=512 avg=401 padded=960 empty=3 short=1212
+pop req=2894640 actual=578928 fillBeforeAvg=81 fillAfterAvg=0 silenceFrames=0 underrunFrames=1389200 overrun=0 ring=0 min=0 max=1440 ringEmpty=2408 starvation=3612 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=151 activeN=3844
+t=2774921 blocks=1497 intervalUs min=10 avg=3291 max=7295 processUs avg=66 max=387 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=968 spaceN=4391 written=1206720 renderUnderruns=757
+driver reads=1505 reported=604320 min=16 max=512 avg=401 padded=960 empty=3 short=1263
+pop req=3016800 actual=603360 fillBeforeAvg=81 fillAfterAvg=0 silenceFrames=0 underrunFrames=1448224 overrun=0 ring=0 min=0 max=1440 ringEmpty=2510 starvation=3765 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=151 activeN=4007
+t=2775437 blocks=1561 intervalUs min=10 avg=3282 max=7295 processUs avg=65 max=387 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=964 spaceN=4555 written=1254720 renderUnderruns=757
+driver reads=1569 reported=628320 min=16 max=512 avg=400 padded=960 empty=3 short=1313
+pop req=3136800 actual=627360 fillBeforeAvg=81 fillAfterAvg=0 silenceFrames=0 underrunFrames=1508192 overrun=0 ring=0 min=0 max=1440 ringEmpty=2610 starvation=3915 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=151 activeN=4171
+t=2775937 blocks=1624 intervalUs min=10 avg=3276 max=7295 processUs avg=65 max=387 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=959 spaceN=4720 written=1303776 renderUnderruns=757
+driver reads=1632 reported=652848 min=16 max=512 avg=400 padded=960 empty=3 short=1364
+pop req=3259440 actual=651888 fillBeforeAvg=80 fillAfterAvg=0 silenceFrames=0 underrunFrames=1568144 overrun=0 ring=0 min=0 max=1440 ringEmpty=2712 starvation=4068 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=151 activeN=4336
+t=2776437 blocks=1688 intervalUs min=10 avg=3268 max=7295 processUs avg=65 max=387 missed=0
+wasapi buffer=2048 padding=1920 spaceAvg=955 spaceN=4884 written=1352640 renderUnderruns=757
+driver reads=1696 reported=677280 min=16 max=512 avg=399 padded=960 empty=3 short=1415
+pop req=3381600 actual=676320 fillBeforeAvg=80 fillAfterAvg=0 silenceFrames=0 underrunFrames=1627680 overrun=0 ring=0 min=0 max=1440 ringEmpty=2812 starvation=4219 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=151 activeN=4500
+t=2776953 blocks=1751 intervalUs min=10 avg=3262 max=7295 processUs avg=65 max=387 missed=0
+wasapi buffer=2048 padding=1920 spaceAvg=951 spaceN=5049 written=1401600 renderUnderruns=757
+driver reads=1759 reported=701760 min=16 max=512 avg=398 padded=960 empty=3 short=1466
+pop req=3504000 actual=700800 fillBeforeAvg=80 fillAfterAvg=0 silenceFrames=0 underrunFrames=1687680 overrun=0 ring=0 min=0 max=1440 ringEmpty=2914 starvation=4372 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=151 activeN=4665
+t=2777453 blocks=1812 intervalUs min=10 avg=3258 max=7295 processUs avg=65 max=387 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=948 spaceN=5211 written=1449600 renderUnderruns=757
+driver reads=1820 reported=725760 min=16 max=512 avg=398 padded=960 empty=3 short=1516
+pop req=3624000 actual=724800 fillBeforeAvg=80 fillAfterAvg=0 silenceFrames=0 underrunFrames=1746624 overrun=0 ring=0 min=0 max=1440 ringEmpty=3015 starvation=4523 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=151 activeN=4827
+t=2777968 blocks=1875 intervalUs min=10 avg=3253 max=7295 processUs avg=65 max=387 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=944 spaceN=5376 written=1498560 renderUnderruns=757
+driver reads=1883 reported=750240 min=16 max=512 avg=398 padded=960 empty=3 short=1567
+pop req=3746400 actual=749280 fillBeforeAvg=80 fillAfterAvg=0 silenceFrames=0 underrunFrames=1806624 overrun=0 ring=0 min=0 max=1440 ringEmpty=3117 starvation=4676 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=151 activeN=4992
+t=2778484 blocks=1939 intervalUs min=10 avg=3247 max=7295 processUs avg=65 max=387 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=941 spaceN=5543 written=1547616 renderUnderruns=757
+driver reads=1947 reported=774768 min=16 max=512 avg=397 padded=960 empty=3 short=1618
+pop req=3869040 actual=773808 fillBeforeAvg=80 fillAfterAvg=0 silenceFrames=0 underrunFrames=1867600 overrun=0 ring=0 min=0 max=1440 ringEmpty=3220 starvation=4830 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=151 activeN=5159
+t=2778984 blocks=2003 intervalUs min=10 avg=3242 max=7295 processUs avg=65 max=387 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=937 spaceN=5707 written=1595616 renderUnderruns=757
+driver reads=2011 reported=798768 min=16 max=512 avg=397 padded=960 empty=3 short=1668
+pop req=3989040 actual=797808 fillBeforeAvg=80 fillAfterAvg=0 silenceFrames=0 underrunFrames=1927568 overrun=0 ring=0 min=0 max=1440 ringEmpty=3320 starvation=4980 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=151 activeN=5323
+t=2779484 blocks=2069 intervalUs min=10 avg=3236 max=7295 processUs avg=65 max=387 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=933 spaceN=5875 written=1644576 renderUnderruns=757
+driver reads=2077 reported=823248 min=16 max=512 avg=396 padded=960 empty=3 short=1719
+pop req=4111440 actual=822288 fillBeforeAvg=80 fillAfterAvg=0 silenceFrames=0 underrunFrames=1989104 overrun=0 ring=0 min=0 max=1440 ringEmpty=3422 starvation=5133 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=151 activeN=5491
+t=2780000 blocks=2135 intervalUs min=10 avg=3230 max=7295 processUs avg=64 max=387 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=930 spaceN=6043 written=1693536 renderUnderruns=757
+driver reads=2143 reported=847728 min=16 max=512 avg=395 padded=960 empty=3 short=1770
+pop req=4233840 actual=846768 fillBeforeAvg=80 fillAfterAvg=0 silenceFrames=0 underrunFrames=2050640 overrun=0 ring=0 min=0 max=1440 ringEmpty=3524 starvation=5286 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=5659
+t=2780500 blocks=2198 intervalUs min=10 avg=3226 max=7295 processUs avg=64 max=387 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=927 spaceN=6206 written=1741440 renderUnderruns=757
+driver reads=2206 reported=871680 min=16 max=512 avg=395 padded=960 empty=3 short=1820
+pop req=4353600 actual=870720 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2110144 overrun=0 ring=0 min=0 max=1440 ringEmpty=3624 starvation=5436 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=5822
+t=2781015 blocks=2262 intervalUs min=10 avg=3222 max=7295 processUs avg=64 max=387 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=924 spaceN=6372 written=1790400 renderUnderruns=757
+driver reads=2270 reported=896160 min=16 max=512 avg=394 padded=960 empty=3 short=1871
+pop req=4476000 actual=895200 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2170656 overrun=0 ring=0 min=0 max=1440 ringEmpty=3726 starvation=5589 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=5988
+t=2781515 blocks=2330 intervalUs min=10 avg=3216 max=7295 processUs avg=64 max=387 missed=0
+wasapi buffer=2048 padding=1920 spaceAvg=920 spaceN=6542 written=1840320 renderUnderruns=757
+driver reads=2338 reported=921120 min=16 max=512 avg=393 padded=960 empty=3 short=1923
+pop req=4600800 actual=920160 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2232736 overrun=0 ring=0 min=0 max=1440 ringEmpty=3828 starvation=5743 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=6158
+t=2782015 blocks=2393 intervalUs min=10 avg=3212 max=7295 processUs avg=64 max=387 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=918 spaceN=6705 written=1887360 renderUnderruns=757
+driver reads=2401 reported=944640 min=16 max=512 avg=393 padded=960 empty=3 short=1972
+pop req=4718400 actual=943680 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2292672 overrun=0 ring=0 min=0 max=1440 ringEmpty=3928 starvation=5892 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=6321
+t=2782531 blocks=2458 intervalUs min=10 avg=3209 max=7295 processUs avg=64 max=387 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=915 spaceN=6871 written=1936416 renderUnderruns=757
+driver reads=2466 reported=969168 min=16 max=512 avg=393 padded=960 empty=3 short=2023
+pop req=4841040 actual=968208 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2353136 overrun=0 ring=0 min=0 max=1440 ringEmpty=4029 starvation=6044 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=6487
+t=2783031 blocks=2523 intervalUs min=10 avg=3204 max=7295 processUs avg=64 max=387 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=912 spaceN=7036 written=1984320 renderUnderruns=757
+driver reads=2531 reported=993120 min=16 max=512 avg=392 padded=960 empty=3 short=2073
+pop req=4960800 actual=992160 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2413664 overrun=0 ring=0 min=0 max=1440 ringEmpty=4129 starvation=6194 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=6652
+t=2783531 blocks=2586 intervalUs min=10 avg=3201 max=7295 processUs avg=64 max=387 missed=0
+wasapi buffer=2048 padding=1920 spaceAvg=910 spaceN=7200 written=2033280 renderUnderruns=757
+driver reads=2594 reported=1017600 min=16 max=512 avg=392 padded=960 empty=3 short=2124
+pop req=5083200 actual=1016640 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2473152 overrun=0 ring=0 min=0 max=1440 ringEmpty=4230 starvation=6346 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=6816
+t=2784031 blocks=2651 intervalUs min=10 avg=3198 max=7295 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=907 spaceN=7366 written=2081376 renderUnderruns=757
+driver reads=2659 reported=1041648 min=16 max=512 avg=391 padded=960 empty=3 short=2174
+pop req=5203440 actual=1040688 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2534096 overrun=0 ring=0 min=0 max=1440 ringEmpty=4331 starvation=6497 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=6982
+t=2784546 blocks=2714 intervalUs min=10 avg=3195 max=7331 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1920 spaceAvg=905 spaceN=7530 written=2130240 renderUnderruns=757
+driver reads=2722 reported=1066080 min=16 max=512 avg=391 padded=960 empty=3 short=2225
+pop req=5325600 actual=1065120 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2593632 overrun=0 ring=0 min=0 max=1440 ringEmpty=4432 starvation=6649 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=7146
+t=2785062 blocks=2779 intervalUs min=10 avg=3192 max=7331 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=902 spaceN=7699 written=2179200 renderUnderruns=757
+driver reads=2787 reported=1090560 min=16 max=512 avg=391 padded=960 empty=3 short=2276
+pop req=5448000 actual=1089600 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2655680 overrun=0 ring=0 min=0 max=1440 ringEmpty=4536 starvation=6804 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=7315
+t=2785562 blocks=2842 intervalUs min=10 avg=3190 max=7344 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1920 spaceAvg=900 spaceN=7862 written=2228160 renderUnderruns=757
+driver reads=2850 reported=1115040 min=16 max=512 avg=391 padded=960 empty=3 short=2327
+pop req=5570400 actual=1114080 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2714656 overrun=0 ring=0 min=0 max=1440 ringEmpty=4636 starvation=6955 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=7478
+t=2786062 blocks=2904 intervalUs min=10 avg=3188 max=7344 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=898 spaceN=8026 written=2276256 renderUnderruns=757
+driver reads=2912 reported=1139088 min=16 max=512 avg=391 padded=960 empty=3 short=2377
+pop req=5690640 actual=1138128 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2774576 overrun=0 ring=0 min=0 max=1440 ringEmpty=4738 starvation=7107 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=7642
+t=2786578 blocks=2964 intervalUs min=10 avg=3187 max=7344 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=896 spaceN=8186 written=2324256 renderUnderruns=757
+driver reads=2972 reported=1163088 min=16 max=512 avg=391 padded=960 empty=3 short=2427
+pop req=5810640 actual=1162128 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2832496 overrun=0 ring=0 min=0 max=1440 ringEmpty=4838 starvation=7257 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=7802
+t=2787078 blocks=3027 intervalUs min=10 avg=3185 max=7344 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=893 spaceN=8350 written=2373216 renderUnderruns=757
+driver reads=3035 reported=1187568 min=16 max=512 avg=391 padded=960 empty=3 short=2478
+pop req=5933040 actual=1186608 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2891984 overrun=0 ring=0 min=0 max=1440 ringEmpty=4939 starvation=7409 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=7966
+t=2787578 blocks=3087 intervalUs min=10 avg=3184 max=7344 processUs avg=65 max=455 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=891 spaceN=8510 written=2421120 renderUnderruns=757
+driver reads=3095 reported=1211520 min=16 max=512 avg=391 padded=960 empty=3 short=2528
+pop req=6052800 actual=1210560 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=2949952 overrun=0 ring=0 min=0 max=1440 ringEmpty=5039 starvation=7559 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=8126
+t=2788078 blocks=3146 intervalUs min=10 avg=3183 max=7344 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1920 spaceAvg=890 spaceN=8670 written=2470080 renderUnderruns=757
+driver reads=3154 reported=1236000 min=16 max=512 avg=391 padded=960 empty=3 short=2579
+pop req=6175200 actual=1235040 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=3007392 overrun=0 ring=0 min=0 max=1440 ringEmpty=5140 starvation=7711 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=8286
+t=2788578 blocks=3203 intervalUs min=10 avg=3184 max=7344 processUs avg=65 max=455 missed=0
+wasapi buffer=2048 padding=1488 spaceAvg=888 spaceN=8828 written=2518176 renderUnderruns=757
+driver reads=3211 reported=1260048 min=16 max=512 avg=392 padded=960 empty=3 short=2629
+pop req=6295440 actual=1259088 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=3064240 overrun=0 ring=0 min=0 max=1440 ringEmpty=5241 starvation=7862 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=8444
+t=2789093 blocks=3266 intervalUs min=10 avg=3181 max=7344 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1920 spaceAvg=886 spaceN=8992 written=2567040 renderUnderruns=757
+driver reads=3274 reported=1284480 min=16 max=512 avg=392 padded=960 empty=3 short=2680
+pop req=6417600 actual=1283520 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=3123776 overrun=0 ring=0 min=0 max=1440 ringEmpty=5342 starvation=8014 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=8608
+t=2789593 blocks=3326 intervalUs min=10 avg=3181 max=7344 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=884 spaceN=9153 written=2615040 renderUnderruns=757
+driver reads=3334 reported=1308480 min=16 max=512 avg=392 padded=960 empty=3 short=2730
+pop req=6537600 actual=1307520 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=3182208 overrun=0 ring=0 min=0 max=1440 ringEmpty=5443 starvation=8165 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=8769
+t=2790093 blocks=3387 intervalUs min=10 avg=3180 max=7344 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1920 spaceAvg=882 spaceN=9315 written=2664000 renderUnderruns=757
+driver reads=3396 reported=1332960 min=16 max=512 avg=392 padded=960 empty=3 short=2782
+pop req=6660000 actual=1332000 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=3240672 overrun=0 ring=0 min=0 max=1440 ringEmpty=5544 starvation=8317 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=8931
+t=2790609 blocks=3448 intervalUs min=10 avg=3179 max=7344 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1440 spaceAvg=881 spaceN=9477 written=2712000 renderUnderruns=757
+driver reads=3457 reported=1356960 min=16 max=512 avg=392 padded=960 empty=3 short=2832
+pop req=6780000 actual=1356000 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=3299616 overrun=0 ring=0 min=0 max=1440 ringEmpty=5645 starvation=8468 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=9093
+t=2791109 blocks=3507 intervalUs min=10 avg=3178 max=7344 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1487 spaceAvg=879 spaceN=9638 written=2761054 renderUnderruns=757
+driver reads=3516 reported=1381488 min=16 max=512 avg=392 padded=961 empty=3 short=2883
+pop req=6902635 actual=1380527 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=3357521 overrun=0 ring=0 min=0 max=1440 ringEmpty=5747 starvation=8621 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=9254
+t=2791625 blocks=3567 intervalUs min=10 avg=3178 max=7344 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1919 spaceAvg=878 spaceN=9799 written=2809918 renderUnderruns=757
+driver reads=3576 reported=1405920 min=16 max=512 avg=393 padded=961 empty=3 short=2934
+pop req=7024795 actual=1404959 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=3415521 overrun=0 ring=0 min=0 max=1440 ringEmpty=5848 starvation=8773 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=9415
+t=2792125 blocks=3625 intervalUs min=10 avg=3177 max=7344 processUs avg=64 max=455 missed=0
+wasapi buffer=2048 padding=1919 spaceAvg=876 spaceN=9957 written=2857918 renderUnderruns=757
+driver reads=3634 reported=1429920 min=16 max=512 avg=393 padded=961 empty=3 short=2984
+pop req=7144795 actual=1428959 fillBeforeAvg=79 fillAfterAvg=0 silenceFrames=0 underrunFrames=3472417 overrun=0 ring=0 min=0 max=1440 ringEmpty=5948 starvation=8923 silenceOut=0 wasapiZero=0 firstZero=1 activeFillAvg=150 activeN=9573

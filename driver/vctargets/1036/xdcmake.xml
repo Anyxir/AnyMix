@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<Rule Name="XDCMake" PageTemplate="tool" DisplayName="Générateur de document XML" SwitchPrefix="/" Order="70" xmlns="http://schemas.microsoft.com/build/2009/properties" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <Rule.Categories>
+    <Category Name="General" DisplayName="Général"/>
+    <Category Name="All Options" DisplayName="Toutes les options" Subtype="Search"/>
+    <Category Name="Command Line" DisplayName="Ligne de commande" Subtype="CommandLine"/>
+  </Rule.Categories>
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile" ItemType="Xdcmake" Label="" HasConfigurationCondition="true"/>
+  </Rule.DataSource>
+  <BoolProperty Name="SlashOld" Category="General" Switch="old" Visible="false">
+  </BoolProperty>
+  <StringProperty Name="ProjectName" SwitchPrefix="" Category="General" Visible="false">
+  </StringProperty>
+  <BoolProperty Name="SuppressStartupBanner" DisplayName="Suppression de la bannière de démarrage" Description="S'exécute sans afficher les informations de copyright Microsoft standard. (/nologo)" Category="General" Switch="nologo" F1Keyword="VC.Project.VCXDCMakeTool.SuppressStartupBanner">
+  </BoolProperty>
+  <StringListProperty Subtype="file" Name="AdditionalDocumentFile" DisplayName="Fichier de document supplémentaire" Description="Fichiers de documentation (.xdc) supplémentaires à fusionner. (/Fs:[fichier])" Category="General" Switch="Fs" F1Keyword="VC.Project.VCXDCMakeTool.AdditionalDocumentFiles">
+  </StringListProperty>
+  <StringProperty Subtype="file" Name="OutputFile" DisplayName="Fichier de document de sortie" Description="Substitue le nom par défaut du fichier de sortie ; le nom du premier fichier .xdc est le nom par défaut (/Fo:[fichier])" Category="General" Switch="Fo" F1Keyword="VC.Project.VCXDCMakeTool.OutputDocumentFile">
+  </StringProperty>
+  <BoolProperty Name="DocumentLibraryDependencies" DisplayName="Dépendances de bibliothèque de documents" Description="Si la valeur est true, les fichiers de commentaires de document XML (.XDC) des dépendances du projet produisant en sortie des bibliothèques statiques seront documentés dans le fichier de document XML de ce projet." Category="General" IncludeInCommandLine="false" F1Keyword="VC.Project.VCXDCMakeTool.DocumentLibraryDependencies">
+  </BoolProperty>
+  <StringProperty Name="AdditionalOptions" DisplayName="Options supplémentaires" Description="Options supplémentaires" Category="Command Line" F1Keyword="vc.project.AdditionalOptionsPage">
+  </StringProperty>
+  <StringProperty Subtype="folder" Name="TrackerLogDirectory" DisplayName="Répertoire des journaux de Tracker" Description="Répertoire des journaux de Tracker." Category="General" IncludeInCommandLine="false" Visible="false">
+  </StringProperty>
+</Rule>

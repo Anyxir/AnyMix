@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<ProjectSchemaDefinitions xmlns="http://schemas.microsoft.com/build/2009/properties" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <Rule Name="FXC" PageTemplate="tool" DisplayName="Compilateur HLSL" SwitchPrefix="/" Order="300">
+
+    <Rule.Categories>
+      <Category Name="General" DisplayName="Général"/>
+      <Category Name="Advanced" DisplayName="Avancé"/>
+      <Category Name="Output Files" DisplayName="Fichiers de sortie"/>
+      <Category Name="All Options" DisplayName="Toutes les options" Subtype="Search"/>
+      <Category Name="Command Line" DisplayName="Ligne de commande" Subtype="CommandLine"/>
+    </Rule.Categories>
+
+    <Rule.DataSource>
+      <DataSource Persistence="ProjectFile" ItemType="FxCompile" Label="" HasConfigurationCondition="true"/>
+    </Rule.DataSource>
+
+    <StringListProperty Subtype="folder" Name="AdditionalIncludeDirectories" DisplayName="Autres répertoires Include" Description="Spécifie un ou plusieurs répertoires à ajouter au chemin Include, séparés par des points-virgules s'il en existe plusieurs. (/I[path])" Category="General" Switch="I" F1Keyword="VC.Project.FXCompilerTool.AdditionalIncludeDirectories">
+    </StringListProperty>
+
+    <BoolProperty Name="SuppressStartupBanner" DisplayName="Suppression de la bannière de démarrage" Description="Supprime l'affiche de la bannière de démarrage et du message d'informations. (/nologo)" Category="Advanced" Switch="nologo" F1Keyword="VC.Project.FXCompilerTool.SuppressStartupBanner">
+    </BoolProperty>
+
+    <StringProperty Name="EntryPointName" DisplayName="Nom du point d'entrée" Description="Spécifie le nom du point d'entrée pour le nuanceur (/E[nom])" Category="General" Switch="E" F1Keyword="VC.Project.FXCompilerTool.EntryPointName">
+    </StringProperty>
+
+    <BoolProperty Name="TreatWarningAsError" DisplayName="Considérer les avertissements comme des erreurs" Description="Considère tous les avertissements du compilateur comme des erreurs. Pour un nouveau projet, il est conseillé d'utiliser /WX dans toutes les compilations, car la résolution de tous les avertissements permet de réduire les erreurs de code difficilement détectables." Category="Advanced" Switch="WX" F1Keyword="VC.Project.FXCompilerTool.TreatWarningAsError">
+    </BoolProperty>
+
+    <BoolProperty Name="DisableOptimizations" DisplayName="Désactiver les optimisations" Description="Désactive les optimisations. /Od implique /Gfp, même si la sortie peut ne pas être identique à /Od /Gfp." Category="General" Switch="Od" F1Keyword="VC.Project.FXCompilerTool.DisableOptimizations">
+    </BoolProperty>
+
+    <BoolProperty Name="EnableDebuggingInformation" DisplayName="Activer les informations de débogage" Description="Active les informations de débogage." Category="General" Switch="Zi" F1Keyword="VC.Project.FXCompilerTool.EnableDebuggingInformation">
+    </BoolProperty>
+
+    <EnumProperty Name="ShaderType" DisplayName="Type de nuanceur" Description="Spécifie le type de nuanceur.  (/T [type]_[model])" Category="General" Switch="T" F1Keyword="VC.Project.FXCompilerTool.ShaderType">
+      <EnumValue Name="Effect" Switch="fx" DisplayName="Effet">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+      <EnumValue Name="Vertex" Switch="vs" DisplayName="Nuanceur de sommets">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+      <EnumValue Name="Pixel" Switch="ps" DisplayName="Nuanceur de pixels">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+      <EnumValue Name="Geometry" Switch="gs" DisplayName="Nuanceur de géométrie">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+      <EnumValue Name="Hull" Switch="hs" DisplayName="Nuanceur de coque">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+      <EnumValue Name="Domain" Switch="ds" DisplayName="Nuanceur de domaine">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+      <EnumValue Name="Compute" Switch="cs" DisplayName="Nuanceur de calcul">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+      <EnumValue Name="Library" Switch="lib" DisplayName="Bibliothèque">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+      <EnumValue Name="Mesh" Switch="ms" DisplayName="Nuanceur de maillage">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+      <EnumValue Name="Amplification" Switch="as" DisplayName="Nuanceur d'amplification">
+        <Argument Property="ShaderModel" IsRequired="true" Separator="_"/>
+      </EnumValue>
+      <EnumValue Name="RootSignature" Switch="" DisplayName="Générer un objet de signature racine">
+        <Argument Property="ShaderModel" IsRequired="true" Separator=" "/>
+      </EnumValue>
+    </EnumProperty>
+
+    <DynamicEnumProperty Name="ShaderModel" DisplayName="Modèle de nuanceur" Description="Spécifie le modèle de nuanceur. Certains types de nuanceur ne peuvent être utilisés qu'avec les modèles de nuanceur les plus modernes (/T [type]_[modèle])" Category="General" F1Keyword="VC.Project.FXCompilerTool.ShaderModel" EnumProvider="ShaderModelEnumProvider"/>
+
+    <BoolProperty Name="AllResourcesBound" DisplayName="Lié à toutes les ressources" Description="Le compilateur part du principe que toutes les ressources qu'un nuanceur peut référencer sont liées et en bon état pendant toute la durée de l'exécution du nuanceur (/all_resources_bound). Disponible pour Shader Model 5,1 et les versions ultérieures." Category="General" Switch="all_resources_bound" F1Keyword="VC.Project.FXCompilerTool.AllResourcesBound">
+    </BoolProperty>
+
+    <BoolProperty Name="EnableUnboundedDescriptorTables" DisplayName="Activer les tables de descripteurs indépendantes" Description="Indiquez au compilateur qu'un nuanceur peut contenir une déclaration de tableau de ressources avec une plage indépendante (/enable_unbounded_descriptor_tables). Disponible pour Shader Model 5,1 et les versions ultérieures." Category="General" Switch="enable_unbounded_descriptor_tables" F1Keyword="VC.Project.FXCompilerTool.EnableUnboundedDescriptorTables">
+    </BoolProperty>
+
+    <StringProperty Name="SetRootSignature" DisplayName="Définir la signature racine" Description="Attacher la signature racine au bytecode du nuanceur (/setrootsignature). Disponible pour Shader Model 5.0 et les versions ultérieures." Category="General" Switch="setrootsignature" F1Keyword="VC.Project.FXCompilerTool.SetRootSignature">
+    </StringProperty>
+
+    <StringListProperty Name="PreprocessorDefinitions" DisplayName="Définitions de préprocesseur" Description="Définit les symboles de prétraitement pour votre fichier source." Category="General" Switch="D " F1Keyword="VC.Project.FXCompilerTool.PreprocessorDefinitions">
+    </StringListProperty>
+
+    <StringProperty Name="AdditionalOptions" DisplayName="Options supplémentaires" Description="Options supplémentaires" Category="Command Line" F1Keyword="VC.Project.FXCompilerTool.AdditionalOptionsPage">
+    </StringProperty>
+
+    <StringProperty Name="VariableName" DisplayName="Nom de la variable dans l'en-tête" Description="Spécifie un nom pour la variable dans le fichier d'en-tête (/Vn [name])" Category="Output Files" Switch="Vn" F1Keyword="VC.Project.FXCompilerTool.VariableName">
+    </StringProperty>
+
+    <StringProperty Subtype="file" Name="HeaderFileOutput" DisplayName="Nom du fichier d'en-tête" Description="Spécifie un nom pour le fichier d'en-tête contenant le code objet. (/Fh [name])" Category="Output Files" Switch="Fh" F1Keyword="VC.Project.FXCompilerTool.HeaderFileOutput">
+    </StringProperty>
+
+    <StringProperty Subtype="file" Name="ObjectFileOutput" DisplayName="Nom de fichier objet" Description="Spécifie un nom pour le fichier objet. (/Fo [name])" Category="Output Files" Switch="Fo" F1Keyword="VC.Project.FXCompilerTool.ObjectFileOutput">
+    </StringProperty>
+
+    <EnumProperty Name="AssemblerOutput" DisplayName="Sortie de l'assembleur" Description="Spécifie le contenu du fichier de sortie linguistique de l'assembly. (/Fc, /Fx)" Category="Output Files" F1Keyword="VC.Project.FXCompilerTool.AssemblerOutput">
+      <EnumValue Name="NoListing" Switch="" DisplayName="Aucune liste" Description="Aucune liste. ">
+      </EnumValue>
+      <EnumValue Name="AssemblyCode" Switch="Fc" DisplayName="Listing du code assembleur uniquement" Description="Fichier de code de l'assembly">
+        <Argument Property="AssemblerOutputFile" IsRequired="true" Separator=" "/>
+      </EnumValue>
+      <EnumValue Name="AssemblyCodeAndHex" Switch="Fx" DisplayName="Code de l'assembly et Hex" Description="Code de l'assembly et fichier listing Hex">
+        <Argument Property="AssemblerOutputFile" IsRequired="true" Separator=" "/>
+      </EnumValue>
+    </EnumProperty>
+
+    <StringProperty Name="AssemblerOutputFile" Subtype="file" DisplayName="Fichier de sortie de l'assembleur" Description="Spécifie le nom de fichier du fichier listing du code d'assembly" Category="Output Files" F1Keyword="VC.Project.FXCompilerTool.AssemblerOutputFile">
+    </StringProperty>
+
+    <BoolProperty Name="CompileD2DCustomEffect" DisplayName="Compiler un effet de nuanceur de pixels personnalisé Direct2D" Description="Compilez un effet personnalisé Direct2D qui contient des nuanceurs de pixels. Ne l'utilisez pas pour un vertex ou pour calculer un effet personnalisé." Category="General" Switch="" F1Keyword="VC.Project.FXCompilerTool.CompileD2DCustomEffect">
+    </BoolProperty>
+
+    <BoolProperty Name="MultiProcFXC" DisplayName="Compilation multiprocesseur" Description="Exécutez plusieurs instances en même temps." Category="General" F1Keyword="VC.Project.FXCompilerTool.MultiProcFXC">
+      <BoolProperty.DataSource>
+        <DataSource ItemType=""/>
+      </BoolProperty.DataSource>
+    </BoolProperty>
+  </Rule>
+
+</ProjectSchemaDefinitions>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright, Microsoft Corporation, All rights reserved.-->
+<Rule Name="AppHostLocalDebugger" DisplayName="Ordinateur local" PageTemplate="debugger" Order="100" Description="Options du débogueur local" xmlns:sys="clr-namespace:System;assembly=mscorlib" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns="http://schemas.microsoft.com/build/2009/properties">
+
+  <Rule.Metadata>
+    <sys:Guid x:Key="DebugTargetTypeCommandGuid">FEEA6E9D-77D8-423F-9EDE-3970CBB76125</sys:Guid>
+    <sys:UInt32 x:Key="DebugTargetTypeCommandId">0x200</sys:UInt32>
+  </Rule.Metadata>
+  <Rule.DataSource>
+    <DataSource Persistence="UserFile"/>
+  </Rule.DataSource>
+  <Rule.Categories>
+    <Category Name="StartOptions" DisplayName="Options de démarrage" Description="Options de démarrage"/>
+    <Category Name="GPUOptions" DisplayName="Options GPU" Description="Options GPU"/>
+  </Rule.Categories>
+  <BoolProperty Name="DebuggerLaunchApplication" DisplayName="Lancer l'application" Category="StartOptions" F1Keyword="VC.Project.IVCAppHostLocalDebugPageObject.LaunchApplication" Description="Indique si le lancement de l'application se produit immédiatement ou s'il intervient une fois que l'application a été déboguée."/>
+  <BoolProperty Name="AllowLocalNetworkLoopback" DisplayName="Autoriser le bouclage de réseau local" Category="StartOptions" F1Keyword="VC.Project.IVCAppHostLocalDebugPageObject.AllowLocalNetworkLoopback" Description="Lors du débogage d'une application du Windows Store, vous permet d'utiliser des services locaux, de déboguer le trafic réseau et d'utiliser un bouclage local pour communiquer avec des composants sur le même ordinateur."/>
+  <EnumProperty Name="DebuggerType" DisplayName="Type de débogueur" Category="StartOptions" F1Keyword="VC.Project.IVCAppHostLocalDebugPageObject.DebuggerType" Description="Spécifie le type de code à déboguer.">
+    <EnumProperty.Metadata>
+      <NameValuePair Name="IsDebugType" Value="true"/>
+    </EnumProperty.Metadata>
+    <EnumValue Name="NativeOnly" DisplayName="Natif uniquement"/>
+    <EnumValue Name="ManagedCore" DisplayName="Managé uniquement"/>
+    <EnumValue Name="GPUOnly" DisplayName="GPU uniquement (C++ AMP)"/>
+    <EnumValue Name="Script" DisplayName="Script uniquement"/>
+    <EnumValue Name="NativeWithManagedCore" DisplayName="Managé et natif"/>
+    <EnumValue Name="NativeWithScript" DisplayName="Script et natif"/>
+  </EnumProperty>
+  <DynamicEnumProperty Name="GPUDebuggerTargetType" DisplayName="Type d'accélérateur de débogage" Category="GPUOptions" EnumProvider="GPUTargets" F1Keyword="VC.Project.IVCAppHostLocalDebugPageObject.GPUDebuggerTargetType" Description="Type d'accélérateur de débogage à utiliser pour déboguer le code GPU.  (Disponible lorsque le débogueur GPU est actif.)">
+    <DynamicEnumProperty.Metadata>
+      <NameValuePair Name="ParentPropertyName" Value="DebuggerType"/>
+      <NameValuePair Name="ParentPropertyValue" Value="GPUOnly"/>
+    </DynamicEnumProperty.Metadata>
+  </DynamicEnumProperty>
+  <EnumProperty Name="GPURefDebuggerBreakOnAllThreads" DisplayName="Comportement du point d'arrêt par défaut GPU" Category="GPUOptions" Description="Définit la fréquence à laquelle le débogueur GPU s'arrête." F1Keyword="VC.Project.IVCAppHostLocalDebugPageObject.BreakpointBehavior">
+    <EnumValue Name="GPURefBreakOncePerWarp" DisplayName="Arrêter une fois par retour à la ligne" Description="Arrêter une fois par retour à la ligne"/>
+    <EnumValue Name="GPURefBreakForCPUThread" DisplayName="Arrêter pour chaque thread (comportement du processeur)" Description="Arrêter pour chaque thread (comportement du processeur)"/>
+    <EnumProperty.Metadata>
+      <NameValuePair Name="ParentPropertyName" Value="DebuggerType"/>
+      <NameValuePair Name="ParentPropertyValue" Value="GPUOnly"/>
+    </EnumProperty.Metadata>
+  </EnumProperty>
+  <DynamicEnumProperty Name="DebuggerAmpDefaultAccelerator" DisplayName="Accélérateur par défaut de l'AMP" EnumProvider="AmpAccelerators" F1Keyword="VC.Project.IVCAppHostLocalDebugPageObject.AmpDefaultAccelerator" Description="Remplacer la sélection de l'accélérateur par défaut de C++ AMP. La propriété ne s'applique pas lors du débogage du code managé.">
+  </DynamicEnumProperty>
+  <StringProperty Name="LayoutDir" DisplayName="Chemin de la disposition de package" Description="Emplacement de la disposition de package où la sortie binaire est copiée. Cet emplacement peut aussi contenir des ressources non binaires pour le projet."/>
+  <StringProperty Name="CommandLineArgs" DisplayName="Arguments de ligne de commande" Description="Arguments de ligne de commande passés au débogueur."/>
+</Rule>

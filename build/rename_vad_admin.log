@@ -1,0 +1,18 @@
+start
+AnyMix Game before=AnyMix Game now=AnyMix Game inf=ASIOVADPRO Driver
+AnyMix Chat before=AnyMix Chat now=AnyMix Chat inf=ASIOVADPRO Driver
+AnyMix Music before=AnyMix Music now=AnyMix Music inf=ASIOVADPRO Driver
+AnyMix Aux before=AnyMix Aux now=AnyMix Aux inf=ASIOVADPRO Driver
+AnyMix Add before=AnyMix Add now=AnyMix Add inf=ASIOVADPRO Driver
+Mix 01 before=AnyMix B1 now=Mix 01 inf=ASIOVADPRO Driver
+Mix 02 before=AnyMix B2 now=Mix 02 inf=ASIOVADPRO Driver
+Mix 03 before=AnyMix B3 now=Mix 03 inf=ASIOVADPRO Driver
+Mix 04 before=AnyMix B4 now=Mix 04 inf=ASIOVADPRO Driver
+Mix 05 before=AnyMix B5 now=Mix 05 inf=ASIOVADPRO Driver
+AnyMix B1 before=Mix 01 now=AnyMix B1 inf=ASIOVADPRO Driver
+AnyMix B2 before=Mix 02 now=AnyMix B2 inf=ASIOVADPRO Driver
+AnyMix B3 before=Mix 03 now=AnyMix B3 inf=ASIOVADPRO Driver
+AnyMix B4 before=Mix 04 now=AnyMix B4 inf=ASIOVADPRO Driver
+AnyMix B5 before=Mix 05 now=AnyMix B5 inf=ASIOVADPRO Driver
+services restarted
+done
