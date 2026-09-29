@@ -2971,4 +2971,12 @@ void Engine::ToggleVstEditor(int slot) { impl_->vst.ToggleEditor(slot); }
 
 void Engine::VstSlot(int slot, VstSlotView& out) const { impl_->vst.Slot(slot, out); }
 
+bool Engine::CaptureVstState(int slot, std::vector<uint8_t>& out) {
+  return impl_->vst.CaptureState(slot, out);
+}
+
+void Engine::RestoreVstState(int slot, const uint8_t* data, size_t size) {
+  impl_->vst.RestoreState(slot, data, size);
+}
+
 }  // namespace anymix

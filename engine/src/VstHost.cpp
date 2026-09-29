@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <cstring>
 #include <string>
+#include <vector>
 
 namespace anymix {
 namespace {
@@ -51,6 +52,7 @@ char kEdit[16];
 char kView[16];
 char kHost[16];
 char kUnknown[16];
+char kStream[16];
 bool g_uids = false;
 
 void EnsureUids() {
@@ -63,6 +65,7 @@ void EnsureUids() {
   MakeUid(kView, 0x5BC32507, 0xD06049EA, 0xA6151B52, 0x2B755B29);
   MakeUid(kHost, 0x58E595CC, 0xDB2D4960, 0x8B6AA72E, 0x1E13F6F4);
   MakeUid(kUnknown, 0x00000000, 0x00000000, 0xC0000000, 0x00000046);
+  MakeUid(kStream, 0xC3BF6EA2, 0x30994752, 0x9B6BF990, 0x1EE33E9B);
   g_uids = true;
 }
 
@@ -191,6 +194,97 @@ struct IEditController : IPluginBase {
   virtual int32_t __stdcall setParamNormalized(uint32_t id, double value) = 0;
   virtual int32_t __stdcall setComponentHandler(void* handler) = 0;
   virtual IPlugView* __stdcall createView(const char* name) = 0;
+};
+
+struct IBStream : FUnknown {
+  virtual int32_t __stdcall read(void* buffer, int32_t numBytes, int32_t* numBytesRead) = 0;
+  virtual int32_t __stdcall write(void* buffer, int32_t numBytes, int32_t* numBytesWritten) = 0;
+  virtual int32_t __stdcall seek(int64_t pos, int32_t mode, int64_t* result) = 0;
+  virtual int32_t __stdcall tell(int64_t* pos) = 0;
+};
+
+struct MemStream : IBStream {
+  std::vector<uint8_t> bytes;
+  int64_t pos = 0;
+  uint32_t refs = 1;
+
+  int32_t __stdcall queryInterface(const char* iid, void** obj) override {
+    if (obj == nullptr) {
+      return kNoInterface;
+    }
+    *obj = nullptr;
+    EnsureUids();
+    if (SameUid(iid, kStream) || SameUid(iid, kUnknown)) {
+      *obj = static_cast<IBStream*>(this);
+      addRef();
+      return kOk;
+    }
+    return kNoInterface;
+  }
+  uint32_t __stdcall addRef() override { return ++refs; }
+  uint32_t __stdcall release() override { return refs > 0 ? --refs : 0; }
+  int32_t __stdcall read(void* buffer, int32_t numBytes, int32_t* numBytesRead) override {
+    if (buffer == nullptr || numBytes < 0) {
+      return kFalse;
+    }
+    const int64_t left = static_cast<int64_t>(bytes.size()) - pos;
+    int32_t count = numBytes;
+    if (left <= 0) {
+      count = 0;
+    } else if (static_cast<int64_t>(count) > left) {
+      count = static_cast<int32_t>(left);
+    }
+    if (count > 0) {
+      std::memcpy(buffer, bytes.data() + pos, static_cast<size_t>(count));
+      pos += count;
+    }
+    if (numBytesRead != nullptr) {
+      *numBytesRead = count;
+    }
+    return count == numBytes ? kOk : kFalse;
+  }
+  int32_t __stdcall write(void* buffer, int32_t numBytes, int32_t* numBytesWritten) override {
+    if (buffer == nullptr || numBytes < 0 || pos < 0) {
+      return kFalse;
+    }
+    const size_t end = static_cast<size_t>(pos) + static_cast<size_t>(numBytes);
+    if (end > bytes.size()) {
+      bytes.resize(end);
+    }
+    if (numBytes > 0) {
+      std::memcpy(bytes.data() + pos, buffer, static_cast<size_t>(numBytes));
+      pos += numBytes;
+    }
+    if (numBytesWritten != nullptr) {
+      *numBytesWritten = numBytes;
+    }
+    return kOk;
+  }
+  int32_t __stdcall seek(int64_t where, int32_t mode, int64_t* result) override {
+    int64_t next = pos;
+    if (mode == 0) {
+      next = where;
+    } else if (mode == 1) {
+      next = pos + where;
+    } else {
+      next = static_cast<int64_t>(bytes.size()) + where;
+    }
+    if (next < 0) {
+      next = 0;
+    }
+    pos = next;
+    if (result != nullptr) {
+      *result = pos;
+    }
+    return kOk;
+  }
+  int32_t __stdcall tell(int64_t* where) override {
+    if (where != nullptr) {
+      *where = pos;
+    }
+    return kOk;
+  }
+  void Rewind() { pos = 0; }
 };
 
 struct PClassInfo {
@@ -370,6 +464,20 @@ int BusChannels(IAudioProcessor* processor, int direction, int buses) {
   }
   return count < 1 ? 1 : count;
 }
+
+#pragma pack(push, 1)
+struct VstEditHead {
+  uint32_t magic = 0;
+  uint32_t version = 0;
+  uint32_t kind = 0;
+  int32_t program = 0;
+  uint32_t compSize = 0;
+  uint32_t ctrlSize = 0;
+  wchar_t path[520]{};
+};
+#pragma pack(pop)
+
+constexpr uint32_t kVstEditMagic = 0x42455356u;
 
 }  // namespace
 
@@ -604,12 +712,151 @@ class VstPlugin {
     }
     if (message == WM_CLOSE && plugin != nullptr) {
       plugin->CloseEditor();
+      HWND owner = FindWindowW(L"AnyMixWindow", nullptr);
+      if (owner != nullptr) {
+        PostMessageW(owner, WM_APP + 41, 0, 0);
+      }
       return 0;
     }
     if (message == WM_SIZE && plugin != nullptr) {
       plugin->OnEditorSize(static_cast<int>(LOWORD(lparam)), static_cast<int>(HIWORD(lparam)));
     }
     return DefWindowProcW(window, message, wparam, lparam);
+  }
+
+  void PauseAudio() {
+    alive.store(false, std::memory_order_release);
+    while (inUse.load(std::memory_order_acquire) != 0) {
+      Sleep(1);
+    }
+  }
+
+  bool Capture(std::vector<uint8_t>& out) {
+    out.clear();
+    if (!alive.load(std::memory_order_acquire) && component_ == nullptr && effect_ == nullptr) {
+      return false;
+    }
+    PauseAudio();
+    const bool ok = WriteState(out);
+    alive.store(true, std::memory_order_release);
+    return ok;
+  }
+
+  void Restore(const uint8_t* data, size_t size) {
+    if (data == nullptr || size < sizeof(VstEditHead)) {
+      return;
+    }
+    VstEditHead head{};
+    std::memcpy(&head, data, sizeof(head));
+    if (head.magic != kVstEditMagic || head.version != 1 || _wcsicmp(head.path, path) != 0) {
+      return;
+    }
+    const size_t body = static_cast<size_t>(head.compSize) + static_cast<size_t>(head.ctrlSize);
+    if (sizeof(VstEditHead) + body != size || body > (1u << 20)) {
+      return;
+    }
+    const uint8_t* bytes = data + sizeof(VstEditHead);
+    PauseAudio();
+    ReadState(head, bytes);
+    alive.store(true, std::memory_order_release);
+  }
+
+  bool WriteState(std::vector<uint8_t>& out) {
+    VstEditHead head{};
+    head.magic = kVstEditMagic;
+    head.version = 1;
+    wcsncpy(head.path, path, 519);
+    std::vector<uint8_t> comp;
+    std::vector<uint8_t> ctrl;
+    if (component_ != nullptr) {
+      MemStream stream;
+      if (component_->getState(&stream) == kOk && !stream.bytes.empty()) {
+        comp.swap(stream.bytes);
+      }
+      if (controller_ != nullptr) {
+        MemStream edit;
+        if (controller_->getState(&edit) == kOk && !edit.bytes.empty()) {
+          ctrl.swap(edit.bytes);
+        }
+      }
+      head.kind = 3;
+    } else if (effect_ != nullptr && effect_->dispatcher != nullptr) {
+      head.program = static_cast<int32_t>(effect_->dispatcher(effect_, 3, 0, 0, nullptr, 0.f));
+      void* chunk = nullptr;
+      const intptr_t bytes = effect_->dispatcher(effect_, 23, 0, 0, &chunk, 0.f);
+      if ((effect_->flags & 32) != 0 && bytes > 0 && chunk != nullptr &&
+          static_cast<size_t>(bytes) <= (1u << 20)) {
+        head.kind = 1;
+        comp.assign(static_cast<uint8_t*>(chunk), static_cast<uint8_t*>(chunk) + bytes);
+      } else if (effect_->getParameter != nullptr && effect_->numParams > 0) {
+        const int count = std::min(effect_->numParams, 4096);
+        head.kind = 2;
+        comp.resize(static_cast<size_t>(count) * sizeof(float));
+        for (int i = 0; i < count; ++i) {
+          const float value = effect_->getParameter(effect_, i);
+          std::memcpy(comp.data() + static_cast<size_t>(i) * sizeof(float), &value, sizeof(float));
+        }
+      }
+    }
+    if (head.kind == 0 || comp.size() + ctrl.size() > (1u << 20)) {
+      return false;
+    }
+    head.compSize = static_cast<uint32_t>(comp.size());
+    head.ctrlSize = static_cast<uint32_t>(ctrl.size());
+    out.resize(sizeof(head) + comp.size() + ctrl.size());
+    std::memcpy(out.data(), &head, sizeof(head));
+    if (!comp.empty()) {
+      std::memcpy(out.data() + sizeof(head), comp.data(), comp.size());
+    }
+    if (!ctrl.empty()) {
+      std::memcpy(out.data() + sizeof(head) + comp.size(), ctrl.data(), ctrl.size());
+    }
+    return true;
+  }
+
+  void ReadState(const VstEditHead& head, const uint8_t* bytes) {
+    if (head.kind == 3 && component_ != nullptr) {
+      if (processor_ != nullptr) {
+        processor_->setProcessing(0);
+      }
+      component_->setActive(0);
+      if (head.compSize > 0) {
+        MemStream stream;
+        stream.bytes.assign(bytes, bytes + head.compSize);
+        component_->setState(&stream);
+        stream.Rewind();
+        if (controller_ != nullptr) {
+          controller_->setComponentState(&stream);
+        }
+      }
+      if (controller_ != nullptr && head.ctrlSize > 0) {
+        MemStream edit;
+        edit.bytes.assign(bytes + head.compSize, bytes + head.compSize + head.ctrlSize);
+        controller_->setState(&edit);
+      }
+      component_->setActive(1);
+      if (processor_ != nullptr) {
+        processor_->setProcessing(1);
+      }
+      return;
+    }
+    if (effect_ == nullptr || effect_->dispatcher == nullptr) {
+      return;
+    }
+    effect_->dispatcher(effect_, 2, 0, head.program, nullptr, 0.f);
+    if (head.kind == 1 && head.compSize > 0) {
+      effect_->dispatcher(effect_, 24, 0, static_cast<intptr_t>(head.compSize),
+                          const_cast<uint8_t*>(bytes), 0.f);
+      return;
+    }
+    if (head.kind == 2 && effect_->setParameter != nullptr) {
+      const int count = static_cast<int>(head.compSize / sizeof(float));
+      for (int i = 0; i < count; ++i) {
+        float value = 0.f;
+        std::memcpy(&value, bytes + static_cast<size_t>(i) * sizeof(float), sizeof(float));
+        effect_->setParameter(effect_, i, value);
+      }
+    }
   }
 
  private:
@@ -1016,6 +1263,29 @@ void VstRack::ToggleEditor(int slot) {
   if (plugin != nullptr) {
     plugin->ToggleEditor();
   }
+}
+
+bool VstRack::CaptureState(int slot, std::vector<uint8_t>& out) {
+  out.clear();
+  if (slot < 0 || slot >= kVstSlots) {
+    return false;
+  }
+  VstPlugin* plugin = slots_[slot].plugin.load(std::memory_order_acquire);
+  if (plugin == nullptr) {
+    return false;
+  }
+  return plugin->Capture(out);
+}
+
+void VstRack::RestoreState(int slot, const uint8_t* data, size_t size) {
+  if (slot < 0 || slot >= kVstSlots || data == nullptr || size == 0) {
+    return;
+  }
+  VstPlugin* plugin = slots_[slot].plugin.load(std::memory_order_acquire);
+  if (plugin == nullptr) {
+    return;
+  }
+  plugin->Restore(data, size);
 }
 
 void VstRack::Slot(int slot, VstSlotView& out) const {

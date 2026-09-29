@@ -124,6 +124,10 @@ bool g_startWithWindows = true;
 bool g_forceQuit = false;
 bool g_trayAdded = false;
 Page g_page = kMixer;
+const wchar_t kRegRoot[] = L"Software\\AnyMix";
+const wchar_t* g_mixReg = kRegRoot;
+bool g_holdMix = false;
+int g_mode = 0;
 int g_vstStrip = anymix::kMic1;
 int g_vstScroll = 0;
 int g_vstVisible = 12;
@@ -1064,9 +1068,12 @@ void WriteNoiseGate(HKEY key) {
 }
 
 void SaveNoiseGate() {
+  if (g_holdMix) {
+    return;
+  }
   HKEY key = nullptr;
-  if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\AnyMix", 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key,
-                      nullptr) != ERROR_SUCCESS) {
+  if (RegCreateKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key, nullptr) !=
+      ERROR_SUCCESS) {
     return;
   }
   WriteNoiseGate(key);
@@ -1082,7 +1089,7 @@ void LoadNoiseGate() {
     return ClampF(10.f * g_strip[strip].gateDepth, 0.f, 10.f);
   };
   HKEY key = nullptr;
-  if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\AnyMix", 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
+  if (RegOpenKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
     for (int mic = 0; mic < anymix::kMicStrips; ++mic) {
       g_micGate[mic].level = fromDepth(mic);
     }
@@ -1118,11 +1125,13 @@ void LoadNoiseGate() {
   }
 }
 
-void PushEngineStrip(int strip) {
-  g_engine->SetGainDb(strip, g_strip[strip].gain);
+void PushEngineStrip(int strip, bool levels = true) {
+  if (levels) {
+    g_engine->SetGainDb(strip, g_strip[strip].gain);
+    g_engine->SetMute(strip, g_strip[strip].mute);
+  }
   g_engine->SetBassDb(strip, g_strip[strip].bass);
   g_engine->SetTrebleDb(strip, g_strip[strip].treble);
-  g_engine->SetMute(strip, g_strip[strip].mute);
   g_engine->SetSolo(strip, g_strip[strip].solo);
   g_engine->SetMono(strip, g_strip[strip].mono);
   g_engine->SetPan(strip, g_strip[strip].pan);
@@ -1931,9 +1940,10 @@ constexpr uint32_t kVstDiskMagic = 0x31545356u;
 constexpr uint32_t kVstGroupMagic = 0x31504756u;
 
 void SaveVstGroups();
+void SaveVstEdits(bool flush = false);
 
 void SaveVstRack() {
-  if (g_engine == nullptr) {
+  if (g_holdMix || g_engine == nullptr) {
     return;
   }
   VstDisk disk{};
@@ -1950,23 +1960,78 @@ void SaveVstRack() {
     }
   }
   HKEY key = nullptr;
-  if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\AnyMix", 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key,
-                      nullptr) != ERROR_SUCCESS) {
+  if (RegCreateKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key, nullptr) !=
+      ERROR_SUCCESS) {
     return;
   }
   RegSetValueExW(key, L"VstRack", 0, REG_BINARY, reinterpret_cast<const BYTE*>(&disk), sizeof(disk));
   RegCloseKey(key);
   SaveVstGroups();
+  SaveVstEdits(false);
+}
+
+void SaveVstEdits(bool flush) {
+  if (g_holdMix || g_engine == nullptr) {
+    return;
+  }
+  HKEY key = nullptr;
+  if (RegCreateKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key, nullptr) !=
+      ERROR_SUCCESS) {
+    return;
+  }
+  for (int slot = 0; slot < anymix::kVstSlots; ++slot) {
+    wchar_t name[16];
+    swprintf(name, 16, L"VstEdit%d", slot);
+    std::vector<uint8_t> blob;
+    if (!g_engine->CaptureVstState(slot, blob) || blob.empty() || blob.size() > (1u << 20)) {
+      RegDeleteValueW(key, name);
+      continue;
+    }
+    RegSetValueExW(key, name, 0, REG_BINARY, blob.data(), static_cast<DWORD>(blob.size()));
+  }
+  if (flush) {
+    RegFlushKey(key);
+  }
+  RegCloseKey(key);
+}
+
+void LoadVstEdit(int savedSlot, int liveSlot) {
+  if (g_engine == nullptr || savedSlot < 0 || savedSlot >= anymix::kVstSlots || liveSlot < 0 ||
+      liveSlot >= anymix::kVstSlots) {
+    return;
+  }
+  HKEY key = nullptr;
+  if (RegOpenKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
+    return;
+  }
+  wchar_t name[16];
+  swprintf(name, 16, L"VstEdit%d", savedSlot);
+  DWORD size = 0;
+  DWORD kind = 0;
+  const LONG probe = RegQueryValueExW(key, name, nullptr, &kind, nullptr, &size);
+  if ((probe != ERROR_SUCCESS && probe != ERROR_MORE_DATA) || kind != REG_BINARY || size == 0 ||
+      size > (1u << 20)) {
+    RegCloseKey(key);
+    return;
+  }
+  std::vector<uint8_t> blob(size);
+  if (RegQueryValueExW(key, name, nullptr, &kind, blob.data(), &size) == ERROR_SUCCESS && kind == REG_BINARY) {
+    g_engine->RestoreVstState(liveSlot, blob.data(), size);
+  }
+  RegCloseKey(key);
 }
 
 void SaveVstLocal() {
+  if (g_holdMix) {
+    return;
+  }
   uint8_t flags[anymix::kStrips]{};
   for (int strip = 0; strip < anymix::kStrips; ++strip) {
     flags[strip] = g_strip[strip].local ? 1 : 0;
   }
   HKEY key = nullptr;
-  if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\AnyMix", 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key,
-                      nullptr) != ERROR_SUCCESS) {
+  if (RegCreateKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key, nullptr) !=
+      ERROR_SUCCESS) {
     return;
   }
   RegSetValueExW(key, L"VstLocal", 0, REG_BINARY, flags, sizeof(flags));
@@ -1975,7 +2040,7 @@ void SaveVstLocal() {
 
 void LoadVstLocal() {
   HKEY key = nullptr;
-  if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\AnyMix", 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
+  if (RegOpenKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
     return;
   }
   uint8_t flags[anymix::kStrips]{};
@@ -2003,6 +2068,9 @@ struct VstGroupDisk {
 #pragma pack(pop)
 
 void SaveVstGroups() {
+  if (g_holdMix) {
+    return;
+  }
   VstGroupDisk disk{};
   disk.magic = kVstGroupMagic;
   disk.version = 1;
@@ -2022,8 +2090,8 @@ void SaveVstGroups() {
     }
   }
   HKEY key = nullptr;
-  if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\AnyMix", 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key,
-                      nullptr) != ERROR_SUCCESS) {
+  if (RegCreateKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key, nullptr) !=
+      ERROR_SUCCESS) {
     return;
   }
   RegSetValueExW(key, L"VstGroups", 0, REG_BINARY, reinterpret_cast<const BYTE*>(&disk), sizeof(disk));
@@ -2035,7 +2103,7 @@ void LoadVstGroups() {
     g_vstSlotGroup[slot] = -1;
   }
   HKEY key = nullptr;
-  if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\AnyMix", 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
+  if (RegOpenKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
     return;
   }
   VstGroupDisk disk{};
@@ -2067,7 +2135,7 @@ void LoadVstRack() {
     return;
   }
   HKEY key = nullptr;
-  if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\AnyMix", 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
+  if (RegOpenKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
     return;
   }
   VstDisk disk{};
@@ -2098,6 +2166,7 @@ void LoadVstRack() {
     if (savedGroup >= 0 && savedGroup < anymix::kVstGroups && g_vstGroup[savedGroup].used) {
       g_engine->SetVstGroup(added, savedGroup);
     }
+    LoadVstEdit(slot, added);
   }
 }
 
@@ -3073,6 +3142,62 @@ void DrawCaptionIcon(Canvas& g, RECT button, int kind, bool zoomed, Gdiplus::Col
   }
 }
 
+void DrawSaveIcon(Canvas& g, RECT r, bool hot, const Palette& pal) {
+  if (hot) {
+    RECT glow{r.left - 1, r.top - 1, r.right + 1, r.bottom + 1};
+    StrokeRR(g, glow, 7, Fade(pal.accent, 90), 1.4f);
+  }
+  FillRR(g, r, 6, hot ? pal.accent : pal.line);
+  StrokeRR(g, r, 6, hot ? pal.accent : Fade(pal.accent, 160), 1.25f);
+  const Gdiplus::Color ink = hot ? Gdiplus::Color(255, 255, 255, 255) : pal.text;
+  Gdiplus::SolidBrush brush(ink);
+  Gdiplus::Pen pen(ink, 1.5f);
+  const float x = static_cast<float>(r.left + (r.right - r.left - 15) / 2);
+  const float y = static_cast<float>(r.top + (r.bottom - r.top - 14) / 2);
+  g.DrawLine(&pen, x, y, x + 14, y);
+  g.DrawLine(&pen, x + 14, y, x + 14, y + 13);
+  g.DrawLine(&pen, x + 14, y + 13, x, y + 13);
+  g.DrawLine(&pen, x, y + 13, x, y);
+  g.FillRectangle(&brush, x + 3, y, 6, 4);
+  g.DrawLine(&pen, x + 3, y + 8, x + 11, y + 8);
+  g.DrawLine(&pen, x + 3, y + 11, x + 9, y + 11);
+}
+
+void DrawModes(Canvas& g, int side, int width, const Palette& pal, int& rightEdge) {
+  const wchar_t* names[3] = {L"Valorant", L"Fortnite", L"Chill"};
+  const wchar_t* tips[3] = {L"Valorant. Loads the mix saved for this mode.",
+                            L"Fortnite. Loads the mix saved for this mode.",
+                            L"Chill. Loads the mix saved for this mode. This mode saves automatically."};
+  const int modes[3] = {1, 2, 0};
+  const int ids[3] = {4181, 4182, 4183};
+  const int gap = 6;
+  const int saveW = 32;
+  const int bh = 28;
+  int btnW = 92;
+  int cluster = btnW * 3 + gap * 3 + saveW;
+  int x = (width - 438) - cluster;
+  const int minX = side + 348;
+  if (x < minX) {
+    const int avail = std::max(saveW + gap * 3 + 54 * 3, (width - 190) - minX);
+    btnW = std::max(54, std::min(92, (avail - saveW - gap * 3) / 3));
+    cluster = btnW * 3 + gap * 3 + saveW;
+    x = std::max(side + 8, (width - 190) - cluster);
+  }
+  for (int i = 0; i < 3; ++i) {
+    RECT button = R(x, 10, btnW, bh);
+    DrawButton(g, button, names[i], g_mode == modes[i], pal.accent, pal, g_hover == ids[i], btnW < 78 ? 11.f : 12.f);
+    AddHot(button, ids[i], tips[i]);
+    x += btnW + gap;
+  }
+  RECT save = R(x, 10, saveW, bh);
+  DrawSaveIcon(g, save, g_hover == 4184, pal);
+  const wchar_t* saveTip = g_mode == 1 ? L"Save Valorant. Replaces the saved mix for this mode."
+                           : g_mode == 2 ? L"Save Fortnite. Replaces the saved mix for this mode."
+                                         : L"Save Chill. Replaces the saved mix for this mode.";
+  AddHot(save, 4184, saveTip);
+  rightEdge = save.right;
+}
+
 void Paint(HWND window) {
   RECT client{};
   GetClientRect(window, &client);
@@ -3146,10 +3271,16 @@ void Paint(HWND window) {
   Text(g, L"Sample Rate", R(side + 180, 22, 80, 16), pal.dim, 10, false);
   Text(g, block, R(side + 270, 4, 50, 22), pal.text, 13, false);
   Text(g, L"Buffer Size", R(side + 270, 22, 80, 16), pal.dim, 10, false);
+  int modeRight = 0;
+  DrawModes(g, side, w, pal, modeRight);
   const bool driver = g_engine->DriverConnected();
   const wchar_t* linkLabel = linkFault == 1 ? L"ASIO Link error" : (linkFault == 0 ? L"ASIO Link OK" : L"ASIO Link offline");
   const Gdiplus::Color linkColor = linkFault == 1 ? pal.clip : (linkFault == 0 ? pal.ok : pal.warn);
   RECT linkBox = R(w - 430, 8, 220, 32);
+  if (linkBox.left < modeRight + 8) {
+    linkBox.left = modeRight + 8;
+    linkBox.right = std::min(w - 190, static_cast<int>(linkBox.left) + 160);
+  }
   Text(g, linkLabel, linkBox, linkColor, 12, true);
   AddHot(linkBox, 4190, linkStatus[0] != 0 ? linkStatus : (driver ? L"ASIO Link Pro is connected." : L"ASIO Link Pro is not running."));
   RECT miniR{};
@@ -3354,9 +3485,12 @@ void ApplyDrag(int x, int y) {
 }
 
 void SaveRoutes() {
+  if (g_holdMix) {
+    return;
+  }
   HKEY key = nullptr;
-  if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\AnyMix", 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key,
-                      nullptr) != ERROR_SUCCESS) {
+  if (RegCreateKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key, nullptr) !=
+      ERROR_SUCCESS) {
     return;
   }
   uint16_t bits[anymix::kStrips]{};
@@ -3381,7 +3515,7 @@ void SaveRoutes() {
 
 void LoadRoutes() {
   HKEY key = nullptr;
-  if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\AnyMix", 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
+  if (RegOpenKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
     return;
   }
   uint16_t bits[anymix::kStrips]{};
@@ -3402,9 +3536,12 @@ void LoadRoutes() {
 }
 
 void SaveGateDepth() {
+  if (g_holdMix) {
+    return;
+  }
   HKEY key = nullptr;
-  if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\AnyMix", 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key,
-                      nullptr) != ERROR_SUCCESS) {
+  if (RegCreateKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key, nullptr) !=
+      ERROR_SUCCESS) {
     return;
   }
   uint8_t depth[anymix::kStrips]{};
@@ -3418,7 +3555,7 @@ void SaveGateDepth() {
 
 void LoadGateDepth() {
   HKEY key = nullptr;
-  if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\AnyMix", 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
+  if (RegOpenKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
     return;
   }
   uint8_t depth[anymix::kStrips]{};
@@ -3762,12 +3899,18 @@ struct PlaceBlob {
 
 constexpr uint32_t kPlaceMagic = 0x43414C50u;
 
+float StoredStripGain(int strip);
+float StoredBusGain(int bus);
+
 void SaveState(bool flush = false) {
+  if (g_holdMix) {
+    return;
+  }
   NoteMainWindow();
   NoteMiniWindow();
   RememberApps();
   HKEY key = nullptr;
-  if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\AnyMix", 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key,
+  if (RegCreateKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, nullptr, 0, KEY_SET_VALUE, nullptr, &key,
                       nullptr) != ERROR_SUCCESS) {
     return;
   }
@@ -3775,7 +3918,7 @@ void SaveState(bool flush = false) {
   blob.magic = kStateMagic;
   blob.version = 1;
   for (int strip = 0; strip < anymix::kStrips; ++strip) {
-    blob.gain[strip] = g_strip[strip].gain;
+    blob.gain[strip] = StoredStripGain(strip);
     blob.bass[strip] = g_strip[strip].bass;
     blob.treble[strip] = g_strip[strip].treble;
     blob.pan[strip] = g_strip[strip].pan;
@@ -3796,7 +3939,7 @@ void SaveState(bool flush = false) {
     blob.label[strip][31] = 0;
   }
   for (int bus = 0; bus < anymix::kBuses; ++bus) {
-    blob.busDb[bus] = g_busDb[bus];
+    blob.busDb[bus] = StoredBusGain(bus);
     blob.busMute[bus] = g_busMute[bus] ? 1 : 0;
     blob.busMono[bus] = g_busMono[bus] ? 1 : 0;
   }
@@ -3854,7 +3997,7 @@ void SaveState(bool flush = false) {
     std::memcpy(apps.data() + sizeof(header), rows, sizeof(AppBlobRow) * static_cast<size_t>(count));
   }
   RegSetValueExW(key, L"AppVolumes", 0, REG_BINARY, apps.data(), static_cast<DWORD>(apps.size()));
-  if (g_havePlace) {
+  if (g_mixReg == kRegRoot && g_havePlace) {
     PlaceBlob place{};
     place.magic = kPlaceMagic;
     place.version = 1;
@@ -3877,6 +4020,7 @@ void SaveState(bool flush = false) {
     RegFlushKey(key);
   }
   RegCloseKey(key);
+  SaveVstEdits(flush);
 }
 
 void Autosave() {
@@ -3891,7 +4035,7 @@ void Autosave() {
 
 void LoadState() {
   HKEY key = nullptr;
-  if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\AnyMix", 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
+  if (RegOpenKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
     return;
   }
   MixerBlob blob{};
@@ -3976,7 +4120,8 @@ void LoadState() {
   }
   PlaceBlob place{};
   DWORD placeSize = sizeof(place);
-  if (RegQueryValueExW(key, L"Window", nullptr, &type, reinterpret_cast<BYTE*>(&place), &placeSize) == ERROR_SUCCESS &&
+  if (g_mixReg == kRegRoot &&
+      RegQueryValueExW(key, L"Window", nullptr, &type, reinterpret_cast<BYTE*>(&place), &placeSize) == ERROR_SUCCESS &&
       type == REG_BINARY && placeSize == sizeof(place) && place.magic == kPlaceMagic && place.version == 1 &&
       place.right > place.left && place.bottom > place.top) {
     g_place.length = sizeof(g_place);
@@ -4019,14 +4164,533 @@ void LoadState() {
   RegCloseKey(key);
 }
 
-void PushEngineBuses() {
+void PushEngineBuses(bool levels = true) {
   for (int bus = 0; bus < anymix::kBuses; ++bus) {
-    g_engine->SetBusGainDb(bus, g_busDb[bus]);
-    g_engine->SetBusMute(bus, g_busMute[bus]);
+    if (levels) {
+      g_engine->SetBusGainDb(bus, g_busDb[bus]);
+      g_engine->SetBusMute(bus, g_busMute[bus]);
+    }
     g_engine->SetBusMono(bus, g_busMono[bus]);
   }
   for (int bus = 0; bus < anymix::kPhysicalBuses; ++bus) {
     g_engine->SetBusSolo(bus, g_busSolo[bus]);
+  }
+}
+
+const wchar_t* ModeReg(int mode) {
+  if (mode == 1) {
+    return L"Software\\AnyMix\\Modes\\Valorant";
+  }
+  if (mode == 2) {
+    return L"Software\\AnyMix\\Modes\\Fortnite";
+  }
+  return kRegRoot;
+}
+
+bool ModeHasState() {
+  HKEY key = nullptr;
+  if (RegOpenKeyExW(HKEY_CURRENT_USER, g_mixReg, 0, KEY_QUERY_VALUE, &key) != ERROR_SUCCESS) {
+    return false;
+  }
+  DWORD type = 0;
+  DWORD size = 0;
+  const LONG status = RegQueryValueExW(key, L"State", nullptr, &type, nullptr, &size);
+  RegCloseKey(key);
+  return status == ERROR_SUCCESS && type == REG_BINARY && size == sizeof(MixerBlob);
+}
+
+void ResetMixMemory() {
+  for (int strip = 0; strip < anymix::kStrips; ++strip) {
+    g_strip[strip] = StripUi{};
+    CopyText(g_label[strip], 32, anymix::kStripNames[strip]);
+  }
+  for (int strip = 0; strip < anymix::kVirtualStrips; ++strip) {
+    g_strip[strip].route[0] = true;
+  }
+  g_strip[anymix::kMic1].route[0] = true;
+  for (int bus = 0; bus < anymix::kBuses; ++bus) {
+    g_busDb[bus] = 0.f;
+    g_busMute[bus] = false;
+    g_busMono[bus] = false;
+  }
+  for (int bus = 0; bus < anymix::kPhysicalBuses; ++bus) {
+    g_busSolo[bus] = false;
+  }
+  for (int mic = 0; mic < anymix::kMicStrips; ++mic) {
+    g_micGate[mic].level = 0.f;
+  }
+  for (int group = 0; group < anymix::kVstGroups; ++group) {
+    g_vstGroup[group] = VstGroupUi{};
+    if (g_engine != nullptr) {
+      g_engine->SetVstGroupBypass(group, false);
+    }
+  }
+  for (int slot = 0; slot < anymix::kVstSlots; ++slot) {
+    g_vstSlotGroup[slot] = -1;
+  }
+}
+
+void UnloadAllVst() {
+  if (g_engine == nullptr) {
+    return;
+  }
+  for (int slot = anymix::kVstSlots - 1; slot >= 0; --slot) {
+    g_engine->RemoveVst(slot);
+  }
+}
+
+void SaveActiveMode() {
+  const bool held = g_holdMix;
+  const wchar_t* previous = g_mixReg;
+  g_holdMix = false;
+  g_mixReg = ModeReg(g_mode);
+  SaveState(true);
+  SaveRoutes();
+  SaveGateDepth();
+  SaveNoiseGate();
+  SaveVstLocal();
+  SaveVstRack();
+  g_mixReg = previous;
+  g_holdMix = held;
+  if (g_mainWindow != nullptr) {
+    InvalidateRect(g_mainWindow, nullptr, FALSE);
+  }
+}
+
+constexpr int kModeFadeMs = 900;
+
+struct ModeFade {
+  bool on = false;
+  ULONGLONG start = 0;
+  float fromStrip[anymix::kStrips]{};
+  float toStrip[anymix::kStrips]{};
+  float nowStrip[anymix::kStrips]{};
+  float fromFader[anymix::kStrips]{};
+  float targetStrip[anymix::kStrips]{};
+  bool targetStripMute[anymix::kStrips]{};
+  float fromBus[anymix::kBuses]{};
+  float toBus[anymix::kBuses]{};
+  float nowBus[anymix::kBuses]{};
+  float fromFaderBus[anymix::kBuses]{};
+  float targetBus[anymix::kBuses]{};
+  bool targetBusMute[anymix::kBuses]{};
+};
+
+ModeFade g_modeFade;
+
+float StoredStripGain(int strip) {
+  return g_modeFade.on ? g_modeFade.targetStrip[strip] : g_strip[strip].gain;
+}
+
+float StoredBusGain(int bus) {
+  return g_modeFade.on ? g_modeFade.targetBus[bus] : g_busDb[bus];
+}
+
+float HeardDb(float db, bool mute) { return mute ? anymix::kFaderMinDb : db; }
+
+float FadeEase(float t) {
+  t = std::max(0.f, std::min(1.f, t));
+  return t * t * (3.f - 2.f * t);
+}
+
+void CaptureHeard(float* strips, float* buses) {
+  if (g_modeFade.on) {
+    for (int i = 0; i < anymix::kStrips; ++i) {
+      strips[i] = g_modeFade.nowStrip[i];
+    }
+    for (int i = 0; i < anymix::kBuses; ++i) {
+      buses[i] = g_modeFade.nowBus[i];
+    }
+    return;
+  }
+  for (int i = 0; i < anymix::kStrips; ++i) {
+    strips[i] = HeardDb(g_strip[i].gain, g_strip[i].mute);
+  }
+  for (int i = 0; i < anymix::kBuses; ++i) {
+    buses[i] = HeardDb(g_busDb[i], g_busMute[i]);
+  }
+}
+
+void ApplyModeFade(float t) {
+  if (g_engine == nullptr) {
+    return;
+  }
+  const float curve = FadeEase(t);
+  for (int i = 0; i < anymix::kStrips; ++i) {
+    const float db = g_modeFade.fromStrip[i] + (g_modeFade.toStrip[i] - g_modeFade.fromStrip[i]) * curve;
+    g_modeFade.nowStrip[i] = db;
+    g_strip[i].gain = g_modeFade.fromFader[i] + (g_modeFade.targetStrip[i] - g_modeFade.fromFader[i]) * curve;
+    g_engine->SetMute(i, false);
+    g_engine->SetGainDb(i, db);
+  }
+  for (int i = 0; i < anymix::kBuses; ++i) {
+    const float db = g_modeFade.fromBus[i] + (g_modeFade.toBus[i] - g_modeFade.fromBus[i]) * curve;
+    g_modeFade.nowBus[i] = db;
+    g_busDb[i] = g_modeFade.fromFaderBus[i] + (g_modeFade.targetBus[i] - g_modeFade.fromFaderBus[i]) * curve;
+    g_engine->SetBusMute(i, false);
+    g_engine->SetBusGainDb(i, db);
+  }
+}
+
+void FinishModeFade(int skipStrip, int skipBus) {
+  g_modeFade.on = false;
+  if (g_engine == nullptr) {
+    return;
+  }
+  for (int i = 0; i < anymix::kStrips; ++i) {
+    if (i == skipStrip) {
+      continue;
+    }
+    g_strip[i].gain = g_modeFade.targetStrip[i];
+    g_engine->SetGainDb(i, g_modeFade.targetStrip[i]);
+    g_engine->SetMute(i, g_modeFade.targetStripMute[i]);
+  }
+  for (int i = 0; i < anymix::kBuses; ++i) {
+    if (i == skipBus) {
+      continue;
+    }
+    g_busDb[i] = g_modeFade.targetBus[i];
+    g_engine->SetBusGainDb(i, g_modeFade.targetBus[i]);
+    g_engine->SetBusMute(i, g_modeFade.targetBusMute[i]);
+  }
+}
+
+bool StartModeFade(const float* fromStrip, const float* fromBus, const float* fromFader, const float* fromFaderBus) {
+  if (g_engine == nullptr) {
+    g_modeFade.on = false;
+    return false;
+  }
+  bool moves = false;
+  for (int i = 0; i < anymix::kStrips; ++i) {
+    g_modeFade.fromStrip[i] = fromStrip[i];
+    g_modeFade.fromFader[i] = fromFader[i];
+    g_modeFade.targetStrip[i] = g_strip[i].gain;
+    g_modeFade.targetStripMute[i] = g_strip[i].mute;
+    g_modeFade.toStrip[i] = HeardDb(g_strip[i].gain, g_strip[i].mute);
+    g_modeFade.nowStrip[i] = fromStrip[i];
+    if (std::fabs(g_modeFade.fromStrip[i] - g_modeFade.toStrip[i]) > 0.05f ||
+        std::fabs(g_modeFade.fromFader[i] - g_modeFade.targetStrip[i]) > 0.05f) {
+      moves = true;
+    }
+  }
+  for (int i = 0; i < anymix::kBuses; ++i) {
+    g_modeFade.fromBus[i] = fromBus[i];
+    g_modeFade.fromFaderBus[i] = fromFaderBus[i];
+    g_modeFade.targetBus[i] = g_busDb[i];
+    g_modeFade.targetBusMute[i] = g_busMute[i];
+    g_modeFade.toBus[i] = HeardDb(g_busDb[i], g_busMute[i]);
+    g_modeFade.nowBus[i] = fromBus[i];
+    if (std::fabs(g_modeFade.fromBus[i] - g_modeFade.toBus[i]) > 0.05f ||
+        std::fabs(g_modeFade.fromFaderBus[i] - g_modeFade.targetBus[i]) > 0.05f) {
+      moves = true;
+    }
+  }
+  if (!moves) {
+    g_modeFade.on = false;
+    return false;
+  }
+  g_modeFade.on = true;
+  g_modeFade.start = GetTickCount64();
+  return true;
+}
+
+void AdvanceModeFade() {
+  if (!g_modeFade.on || g_engine == nullptr) {
+    return;
+  }
+  int skipStrip = -1;
+  int skipBus = -1;
+  if (g_drag >= 1000) {
+    const int strip = (g_drag - 1000) / 40;
+    const int part = (g_drag - 1000) % 40;
+    if (part == kFader && strip >= 0 && strip < anymix::kStrips) {
+      skipStrip = strip;
+    }
+  } else if (g_drag >= 7000 && g_drag < 7000 + anymix::kBuses) {
+    skipBus = g_drag - 7000;
+  }
+  if (g_miniDrag >= 0 && g_miniDrag < 5) {
+    const int miniOrder[5] = {anymix::kGame, anymix::kChat, anymix::kMusic, anymix::kAux, anymix::kMic1};
+    skipStrip = miniOrder[g_miniDrag];
+  }
+  if (skipStrip >= 0 || skipBus >= 0) {
+    FinishModeFade(skipStrip, skipBus);
+    return;
+  }
+  const ULONGLONG elapsed = GetTickCount64() - g_modeFade.start;
+  if (elapsed >= static_cast<ULONGLONG>(kModeFadeMs)) {
+    FinishModeFade(-1, -1);
+    return;
+  }
+  ApplyModeFade(static_cast<float>(elapsed) / static_cast<float>(kModeFadeMs));
+}
+
+void SelectMode(int mode) {
+  if (mode == g_mode || mode < 0 || mode > 2) {
+    return;
+  }
+  SaveActiveMode();
+  const bool dark = g_dark;
+  const bool compact = g_compact;
+  const bool anim = g_anim;
+  const bool tray = g_closeToTray;
+  const Page page = g_page;
+  const int recBus = g_recBus;
+  const int recFormat = g_recFormat;
+  const uint32_t recMask = g_recMask;
+  const uint32_t playMask = g_playMask;
+  wchar_t folder[MAX_PATH]{};
+  wcsncpy(folder, g_folder, MAX_PATH - 1);
+  float heardStrip[anymix::kStrips]{};
+  float heardBus[anymix::kBuses]{};
+  float faderStrip[anymix::kStrips]{};
+  float faderBus[anymix::kBuses]{};
+  CaptureHeard(heardStrip, heardBus);
+  for (int i = 0; i < anymix::kStrips; ++i) {
+    faderStrip[i] = g_strip[i].gain;
+  }
+  for (int i = 0; i < anymix::kBuses; ++i) {
+    faderBus[i] = g_busDb[i];
+  }
+  g_mode = mode;
+  g_holdMix = mode != 0;
+  g_mixReg = ModeReg(mode);
+  ResetMixMemory();
+  g_savedApps.clear();
+  const bool saved = ModeHasState();
+  if (saved) {
+    LoadRoutes();
+    LoadGateDepth();
+    LoadState();
+    LoadNoiseGate();
+    LoadVstLocal();
+  } else if (mode == 1) {
+    wcsncpy(g_vstStatus, L"Valorant has no saved mix yet.", 159);
+    g_vstStatus[159] = 0;
+  } else if (mode == 2) {
+    wcsncpy(g_vstStatus, L"Fortnite has no saved mix yet.", 159);
+    g_vstStatus[159] = 0;
+  }
+  g_dark = dark;
+  g_compact = compact;
+  g_anim = anim;
+  g_closeToTray = tray;
+  g_page = page;
+  g_recBus = recBus;
+  g_recFormat = recFormat;
+  g_recMask = recMask;
+  g_playMask = playMask;
+  wcsncpy(g_folder, folder, MAX_PATH - 1);
+  g_folder[MAX_PATH - 1] = 0;
+  if (saved) {
+    for (int mic = 0; mic < anymix::kMicStrips; ++mic) {
+      g_micSel[mic] = 0;
+    }
+    for (int bus = 0; bus < anymix::kPhysicalBuses; ++bus) {
+      g_outSel[bus] = 0;
+    }
+    ReloadDevices(false);
+  }
+  if (g_engine != nullptr) {
+    const bool glide = StartModeFade(heardStrip, heardBus, faderStrip, faderBus);
+    for (int strip = 0; strip < anymix::kStrips; ++strip) {
+      PushEngineStrip(strip, !glide);
+    }
+    PushEngineBuses(!glide);
+    if (glide) {
+      ApplyModeFade(0.f);
+    }
+    g_engine->SetMonitorMask(g_recMask);
+    g_engine->SetPlaybackMask(g_playMask);
+    if (saved) {
+      PushDevices();
+    }
+    UnloadAllVst();
+    if (saved) {
+      LoadVstRack();
+    }
+  }
+  g_mixReg = kRegRoot;
+  RefreshSessions();
+  if (g_mainWindow != nullptr) {
+    InvalidateRect(g_mainWindow, nullptr, FALSE);
+  }
+  if (g_miniWindow != nullptr) {
+    InvalidateRect(g_miniWindow, nullptr, FALSE);
+  }
+}
+
+// Local control pipe. AnyControl sends one ASCII message and reads OK or ERROR.
+// Audio mode changes stay on the UI thread. The pipe thread never touches the engine.
+constexpr UINT WM_APP_MIX_CONTROL = WM_APP + 42;
+constexpr wchar_t kControlPipeName[] = L"\\\\.\\pipe\\AnyProject.AnyMix.Control";
+
+HANDLE g_controlStop = nullptr;
+HANDLE g_controlThread = nullptr;
+std::atomic<bool> g_controlAlive{false};
+
+bool ControlEquals(const char* text, int length, const char* command) {
+  const int count = static_cast<int>(std::strlen(command));
+  return length == count && std::memcmp(text, command, static_cast<size_t>(count)) == 0;
+}
+
+void TrimControlMessage(char* text, int& length) {
+  int begin = 0;
+  while (begin < length && (text[begin] == ' ' || text[begin] == '\t' || text[begin] == '\r' || text[begin] == '\n' ||
+                            text[begin] == '\0')) {
+    ++begin;
+  }
+  while (length > begin && (text[length - 1] == ' ' || text[length - 1] == '\t' || text[length - 1] == '\r' ||
+                            text[length - 1] == '\n' || text[length - 1] == '\0')) {
+    --length;
+  }
+  if (begin > 0 && length > begin) {
+    std::memmove(text, text + begin, static_cast<size_t>(length - begin));
+  }
+  length -= begin;
+  if (length < 0) {
+    length = 0;
+  }
+  text[length] = '\0';
+}
+
+const char* ControlReply(const char* text, int length) {
+  // ACTIVATE_VALORANT_MODE is the only command in this version.
+  // DEACTIVATE_VALORANT_MODE and GET_STATUS belong beside this check later.
+  if (!ControlEquals(text, length, "ACTIVATE_VALORANT_MODE")) {
+    return "ERROR";
+  }
+  if (!g_controlAlive.load(std::memory_order_acquire) || g_mainWindow == nullptr || !IsWindow(g_mainWindow)) {
+    return "ERROR";
+  }
+  if (PostMessageW(g_mainWindow, WM_APP_MIX_CONTROL, 1, 0) == FALSE) {
+    return "ERROR";
+  }
+  return "OK";
+}
+
+void RunControlCommand(WPARAM command) {
+  if (!g_controlAlive.load(std::memory_order_acquire)) {
+    return;
+  }
+  if (command == 1) {
+    SelectMode(1);
+  }
+}
+
+bool WaitControl(HANDLE pipe, OVERLAPPED* overlapped, DWORD* transferred) {
+  HANDLE waits[2] = {overlapped->hEvent, g_controlStop};
+  if (WaitForMultipleObjects(2, waits, FALSE, INFINITE) != WAIT_OBJECT_0) {
+    CancelIoEx(pipe, overlapped);
+    WaitForSingleObject(overlapped->hEvent, 200);
+    return false;
+  }
+  return GetOverlappedResult(pipe, overlapped, transferred, FALSE) != FALSE;
+}
+
+DWORD WINAPI ControlPipeThread(void*) {
+  while (g_controlStop != nullptr && WaitForSingleObject(g_controlStop, 0) != WAIT_OBJECT_0) {
+    HANDLE pipe = CreateNamedPipeW(kControlPipeName, PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
+                                   PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
+                                   1, 64, 256, 0, nullptr);
+    if (pipe == INVALID_HANDLE_VALUE) {
+      if (WaitForSingleObject(g_controlStop, 200) == WAIT_OBJECT_0) {
+        break;
+      }
+      continue;
+    }
+    OVERLAPPED overlapped{};
+    overlapped.hEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+    if (overlapped.hEvent == nullptr) {
+      CloseHandle(pipe);
+      break;
+    }
+    bool connected = ConnectNamedPipe(pipe, &overlapped) != FALSE;
+    if (!connected) {
+      const DWORD error = GetLastError();
+      if (error == ERROR_PIPE_CONNECTED) {
+        connected = true;
+      } else if (error == ERROR_IO_PENDING) {
+        DWORD transferred = 0;
+        connected = WaitControl(pipe, &overlapped, &transferred);
+      }
+    }
+    if (!connected || WaitForSingleObject(g_controlStop, 0) == WAIT_OBJECT_0) {
+      CancelIoEx(pipe, &overlapped);
+      CloseHandle(overlapped.hEvent);
+      DisconnectNamedPipe(pipe);
+      CloseHandle(pipe);
+      if (WaitForSingleObject(g_controlStop, 0) == WAIT_OBJECT_0) {
+        break;
+      }
+      continue;
+    }
+    ResetEvent(overlapped.hEvent);
+    char buffer[256]{};
+    DWORD read = 0;
+    const BOOL reading = ReadFile(pipe, buffer, sizeof(buffer) - 1, nullptr, &overlapped);
+    bool got = reading != FALSE;
+    if (!got && GetLastError() == ERROR_IO_PENDING) {
+      got = WaitControl(pipe, &overlapped, &read);
+    } else if (got) {
+      GetOverlappedResult(pipe, &overlapped, &read, FALSE);
+    }
+    if (!got || read == 0 || read >= sizeof(buffer)) {
+      CloseHandle(overlapped.hEvent);
+      DisconnectNamedPipe(pipe);
+      CloseHandle(pipe);
+      if (WaitForSingleObject(g_controlStop, 0) == WAIT_OBJECT_0) {
+        break;
+      }
+      continue;
+    }
+    int length = static_cast<int>(read);
+    TrimControlMessage(buffer, length);
+    const char* reply = ControlReply(buffer, length);
+    ResetEvent(overlapped.hEvent);
+    DWORD written = 0;
+    const DWORD replyBytes = static_cast<DWORD>(std::strlen(reply));
+    const BOOL writing = WriteFile(pipe, reply, replyBytes, nullptr, &overlapped);
+    if (!writing && GetLastError() == ERROR_IO_PENDING) {
+      WaitControl(pipe, &overlapped, &written);
+    }
+    CloseHandle(overlapped.hEvent);
+    DisconnectNamedPipe(pipe);
+    CloseHandle(pipe);
+  }
+  return 0;
+}
+
+void StartControlPipe() {
+  if (g_controlThread != nullptr) {
+    return;
+  }
+  g_controlStop = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+  if (g_controlStop == nullptr) {
+    return;
+  }
+  g_controlAlive.store(true, std::memory_order_release);
+  g_controlThread = CreateThread(nullptr, 0, ControlPipeThread, nullptr, 0, nullptr);
+  if (g_controlThread == nullptr) {
+    g_controlAlive.store(false, std::memory_order_release);
+    CloseHandle(g_controlStop);
+    g_controlStop = nullptr;
+  }
+}
+
+void StopControlPipe() {
+  g_controlAlive.store(false, std::memory_order_release);
+  if (g_controlStop != nullptr) {
+    SetEvent(g_controlStop);
+  }
+  if (g_controlThread != nullptr) {
+    WaitForSingleObject(g_controlThread, 3000);
+    CloseHandle(g_controlThread);
+    g_controlThread = nullptr;
+  }
+  if (g_controlStop != nullptr) {
+    CloseHandle(g_controlStop);
+    g_controlStop = nullptr;
   }
 }
 
@@ -5046,6 +5710,22 @@ void OnClick(HWND window, int id) {
     g_pop = 0;
     return;
   }
+  if (id == 4181) {
+    SelectMode(1);
+    return;
+  }
+  if (id == 4182) {
+    SelectMode(2);
+    return;
+  }
+  if (id == 4183) {
+    SelectMode(0);
+    return;
+  }
+  if (id == 4184) {
+    SaveActiveMode();
+    return;
+  }
   if (id == 8730) {
     int group = -1;
     for (int i = 0; i < anymix::kVstGroups; ++i) {
@@ -5135,6 +5815,7 @@ void OnClick(HWND window, int id) {
   }
   if (id >= 8960 && id < 8960 + anymix::kVstSlots && g_engine != nullptr) {
     g_engine->ToggleVstEditor(id - 8960);
+    SaveVstEdits(false);
     return;
   }
   if (id >= 8970 && id < 8970 + anymix::kVstSlots && g_engine != nullptr) {
@@ -5691,9 +6372,14 @@ void CaptionRects(int width, RECT& miniR, RECT& minR, RECT& maxR, RECT& closeR) 
 
 const int kMiniOrder[5] = {anymix::kGame, anymix::kChat, anymix::kMusic, anymix::kAux, anymix::kMic1};
 const wchar_t* kMiniLabels[5] = {L"GAME", L"CHAT", L"MUSIC", L"AUX", L"MIC"};
+constexpr int kMiniW = 320;
+constexpr int kMiniH = 408;
+constexpr int kMiniLogoH = 62;
+constexpr int kMiniModeTop = 70;
+constexpr int kMiniStripTop = 102;
 
 void MiniSliderRect(int index, int width, RECT& slider) {
-  const int y = 48 + index * 48;
+  const int y = kMiniStripTop + index * 48;
   slider = R(16, y + 34, std::max(40, width - 32), 12);
 }
 
@@ -5758,16 +6444,37 @@ void PaintMini(HWND window) {
   g_hot.clear();
   const Palette pal = Colors();
   FillRR(g, R(0, 0, w, h), 0, pal.bg);
-  Text(g, L"AnyMix", R(16, 8, 160, 32), pal.text, 18, false);
+  RECT logoBox = R(6, 4, w - 52, kMiniLogoH);
+  if (g_logoLong != nullptr && g_logoLong->GetLastStatus() == Gdiplus::Ok && g_logoLong->GetWidth() > 0) {
+    DrawLogo(g, g_logoLong, logoBox);
+  } else {
+    Text(g, L"AnyMix", R(16, 8, 160, 32), pal.text, 18, false);
+  }
   RECT back = R(w - 46, 0, 46, 48);
   if (g_miniHover == 5511) {
     DrawCaptionPlate(g, back, pal.surface);
   }
   DrawCaptionIcon(g, back, 4, false, pal.text, g_miniHover == 5511 ? pal.surface : pal.bg);
   AddHot(back, 5511, L"Grand mixer");
+  const wchar_t* modeNames[3] = {L"Valorant", L"Fortnite", L"Chill"};
+  const int modeIds[3] = {4181, 4182, 4183};
+  const int modeValues[3] = {1, 2, 0};
+  const int modeGap = 4;
+  const int saveW = 28;
+  const int modeBtnW = std::max(52, (w - 20 - saveW - modeGap * 3) / 3);
+  int modeX = 10;
+  for (int i = 0; i < 3; ++i) {
+    RECT button = R(modeX, kMiniModeTop, modeBtnW, 28);
+    DrawButton(g, button, modeNames[i], g_mode == modeValues[i], pal.accent, pal, g_miniHover == modeIds[i], 11.f);
+    AddHot(button, modeIds[i], modeNames[i]);
+    modeX += modeBtnW + modeGap;
+  }
+  RECT save = R(modeX, kMiniModeTop, saveW, 28);
+  DrawSaveIcon(g, save, g_miniHover == 4184, pal);
+  AddHot(save, 4184, g_mode == 1 ? L"Save Valorant" : g_mode == 2 ? L"Save Fortnite" : L"Save Chill");
   for (int i = 0; i < 5; ++i) {
     const int strip = kMiniOrder[i];
-    const int y = 48 + i * 48;
+    const int y = kMiniStripTop + i * 48;
     DrawIcon(g, strip, 14.f, static_cast<float>(y + 1), 18.f, pal.text);
     Text(g, kMiniLabels[i], R(38, y, 120, 20), pal.text, 12, false);
     if (strip == anymix::kMic1) {
@@ -5853,8 +6560,8 @@ void EnterMini() {
     RegisterClassExW(&klass);
     RECT main{};
     GetWindowRect(g_mainWindow, &main);
-    const int mw = 320;
-    const int mh = 348;
+    const int mw = kMiniW;
+    const int mh = kMiniH;
     int x = main.right - mw - 16;
     int y = main.top + 48;
     RECT work{};
@@ -5877,6 +6584,8 @@ void EnterMini() {
       return;
     }
     ApplyWindowFrame(g_miniWindow);
+  } else {
+    SetWindowPos(g_miniWindow, nullptr, 0, 0, kMiniW, kMiniH, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
   }
   g_miniMode = true;
   ShowWindow(g_miniWindow, SW_SHOW);
@@ -5935,6 +6644,14 @@ LRESULT CALLBACK MiniProc(HWND window, UINT message, WPARAM wparam, LPARAM lpara
         InvalidateRect(window, nullptr, FALSE);
       } else if (id == 5511) {
         LeaveMini();
+      } else if (id == 4181) {
+        SelectMode(1);
+      } else if (id == 4182) {
+        SelectMode(2);
+      } else if (id == 4183) {
+        SelectMode(0);
+      } else if (id == 4184) {
+        SaveActiveMode();
       }
       return 0;
     }
@@ -6103,6 +6820,8 @@ LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
         }
       }
       if (hit == HTCLIENT && pt.y >= 0 && pt.y < 48 && pt.x >= 0 && pt.x < width) {
+        const int headerId = HitAt(pt.x, pt.y);
+        const bool modeButton = headerId >= 4181 && headerId <= 4184;
         if (PtInRect(&miniR, pt)) {
           hot = 4;
         } else if (PtInRect(&minR, pt)) {
@@ -6111,7 +6830,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
           hot = 2;
         } else if (PtInRect(&closeR, pt)) {
           hot = 3;
-        } else {
+        } else if (!modeButton) {
           hit = HTCAPTION;
         }
       }
@@ -6510,6 +7229,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
       return 0;
     case WM_TIMER:
       if (wparam == 1) {
+        AdvanceModeFade();
         TickMeters();
         Autosave();
       } else if (wparam == 2) {
@@ -6557,6 +7277,12 @@ LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
       }
       return DefWindowProcW(window, message, wparam, lparam);
     }
+    case WM_APP_MIX_CONTROL:
+      RunControlCommand(wparam);
+      return 0;
+    case WM_APP + 41:
+      SaveVstEdits(false);
+      return 0;
     case WM_APP + 1:
       if (lparam == WM_LBUTTONUP || lparam == WM_LBUTTONDBLCLK) {
         ShowFromTray(window);
@@ -6614,6 +7340,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
       }
       return 0;
     case WM_DESTROY:
+      StopControlPipe();
       SaveState(true);
       StopPlayback();
       if (g_encodeThread != nullptr) {
@@ -6760,11 +7487,12 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR commandLine, int show) 
   SetTimer(window, 1, 8, nullptr);
   SetTimer(window, 2, 1000, nullptr);
   RefreshSessions();
+  StartControlPipe();
   if (g_openMini) {
     EnterMini();
-    RECT mini{g_miniX, g_miniY, g_miniX + 320, g_miniY + 348};
+    RECT mini{g_miniX, g_miniY, g_miniX + kMiniW, g_miniY + kMiniH};
     if (g_miniWindow != nullptr && MonitorFromRect(&mini, MONITOR_DEFAULTTONULL) != nullptr) {
-      SetWindowPos(g_miniWindow, HWND_TOPMOST, g_miniX, g_miniY, 320, 348, SWP_SHOWWINDOW);
+      SetWindowPos(g_miniWindow, HWND_TOPMOST, g_miniX, g_miniY, kMiniW, kMiniH, SWP_SHOWWINDOW);
     }
   } else {
     ShowWindow(window, static_cast<int>(openShow));

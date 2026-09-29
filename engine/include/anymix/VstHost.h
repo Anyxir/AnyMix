@@ -3,7 +3,9 @@
 #include "anymix/Types.h"
 
 #include <atomic>
+#include <cstdint>
 #include <string>
+#include <vector>
 
 namespace anymix {
 
@@ -39,6 +41,8 @@ class VstRack {
   void SetLocal(int strip, bool on);
   void ToggleEditor(int slot);
   void Slot(int slot, VstSlotView& out) const;
+  bool CaptureState(int slot, std::vector<uint8_t>& out);
+  void RestoreState(int slot, const uint8_t* data, size_t size);
   void Process(float* const* shaped, int strips, int frames);
 
  private:

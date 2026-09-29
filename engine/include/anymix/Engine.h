@@ -3,7 +3,9 @@
 #include "anymix/Types.h"
 #include "anymix/VstHost.h"
 
+#include <cstdint>
 #include <string>
+#include <vector>
 
 namespace anymix {
 
@@ -75,6 +77,8 @@ class Engine {
   void SetLocalVst(int strip, bool on);
   void ToggleVstEditor(int slot);
   void VstSlot(int slot, VstSlotView& out) const;
+  bool CaptureVstState(int slot, std::vector<uint8_t>& out);
+  void RestoreVstState(int slot, const uint8_t* data, size_t size);
 
  private:
   struct Impl;
