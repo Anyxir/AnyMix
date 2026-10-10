@@ -8,6 +8,12 @@ namespace {
 
 constexpr float kPi = 3.14159265358979323846f;
 
+// Per-strip fader smoothing state, kept OUT of StripEq (see the note in
+// Process.h: a pre-existing test hands ShapeStrips an undersized StripEq, so
+// eq[] cannot carry load-bearing state). Confined to the single audio thread
+// that runs ShapeStrips; no allocation, no locks.
+GainRamp gStripRamps[kStrips]{};
+
 BiquadCoeffs Normalize(float b0, float b1, float b2, float a0, float a1, float a2) {
   BiquadCoeffs c;
   const float inv = 1.f / a0;
@@ -20,6 +26,12 @@ BiquadCoeffs Normalize(float b0, float b1, float b2, float a0, float a1, float a
 }
 
 }  // namespace
+
+void ResetStripGainRamps() {
+  for (int strip = 0; strip < kStrips; ++strip) {
+    gStripRamps[strip] = GainRamp{};
+  }
+}
 
 BiquadCoeffs MakeLowShelf(float gainDb, float freqHz, float sampleRate) {
   if (std::fabs(gainDb) < 0.001f) {
@@ -77,11 +89,36 @@ void ShapeStrips(const float* const inputs[kStrips],
     float* out = shaped[strip];
     const int samples = frames * kChannels;
     if (!params[strip].audible || inputs[strip] == nullptr) {
+      // Mute (or no input): silence the strip and leave the ramp state as it
+      // is, so an unmute with a moved fader ramps in instead of stepping.
       std::memset(out, 0, sizeof(float) * static_cast<size_t>(samples));
       continue;
     }
     const float* in = inputs[strip];
     const BlockParams& p = params[strip];
+    GainRamp& ramp = gStripRamps[strip];  // not eq[]: see the layout note in Process.h
+    // A non-finite published gain (NaN/inf) is treated as "keep the current
+    // target": NaN compares unequal to everything, so adopting it would
+    // re-arm the ramp on every block and multiply the whole strip by NaN
+    // forever. Baseline (no ramp state) self-healed on the next block; this
+    // must not be worse than baseline. Costs one isfinite per block.
+    const bool gainValid = std::isfinite(p.gain);
+    if (!ramp.init) {
+      // First block through fresh state: adopt the target exactly, so a
+      // steady gain is never smeared by a phantom ramp.
+      if (gainValid) {
+        ramp.applied = p.gain;
+        ramp.target = p.gain;
+      }
+      ramp.samplesLeft = 0;
+      ramp.init = true;
+    } else if (gainValid && p.gain != ramp.target) {
+      // New fader target: linear ramp from the currently applied gain,
+      // snapped exactly to the target on the last sample.
+      ramp.target = p.gain;
+      ramp.step = (ramp.target - ramp.applied) / static_cast<float>(kGainRampSamples);
+      ramp.samplesLeft = kGainRampSamples;
+    }
     for (int frame = 0; frame < frames; ++frame) {
       float left = ApplyBiquad(p.bass, eq[strip].bass[0], in[frame * 2]);
       float right = ApplyBiquad(p.bass, eq[strip].bass[1], in[frame * 2 + 1]);
@@ -93,22 +130,15 @@ void ShapeStrips(const float* const inputs[kStrips],
         right = mid;
       }
       ApplyBalance(left, right, p.pan);
-      left *= p.gain * p.toneTrim;
-      right *= p.gain * p.toneTrim;
-      if (p.toneTrim < 0.999f) {
-        const float peak = std::max(std::fabs(left), std::fabs(right));
-        const float envK = peak > eq[strip].toneEnv ? 0.12f : 0.0012f;
-        eq[strip].toneEnv += (peak - eq[strip].toneEnv) * envK;
-        constexpr float kCeiling = 0.8f;
-        const float target = eq[strip].toneEnv > kCeiling ? kCeiling / eq[strip].toneEnv : 1.f;
-        const float gainK = target < eq[strip].toneGain ? 0.08f : 0.0015f;
-        eq[strip].toneGain += (target - eq[strip].toneGain) * gainK;
-        left *= eq[strip].toneGain;
-        right *= eq[strip].toneGain;
-      } else {
-        eq[strip].toneEnv = 0.f;
-        eq[strip].toneGain = 1.f;
+      if (ramp.samplesLeft > 0) {
+        ramp.applied += ramp.step;
+        --ramp.samplesLeft;
+        if (ramp.samplesLeft == 0) {
+          ramp.applied = ramp.target;  // exact convergence, no float drift
+        }
       }
+      left *= ramp.applied;
+      right *= ramp.applied;
       out[frame * 2] = left;
       out[frame * 2 + 1] = right;
     }
@@ -137,6 +167,25 @@ void MixToBuses(const float* const shaped[kStrips],
       for (int i = 0; i < samples; ++i) {
         out[i] += in[i];
       }
+    }
+  }
+}
+
+void CopyStripBlockGated(float* const* src,
+                         const bool* audible,
+                         int stripCount,
+                         int frames,
+                         float* const* dst) {
+  // Copies the strips that reach the host as they are and writes explicit
+  // silence for the muted/solo-cut ones: the send to the ASIO host happens
+  // before the engine's anti-resurrection memset, so the gate has to live here
+  // too, or a muted strip (and any local VST output) leaks to Cantabile.
+  const size_t bytes = sizeof(float) * static_cast<size_t>(frames) * kChannels;
+  for (int strip = 0; strip < stripCount; ++strip) {
+    if (audible[strip]) {
+      std::memcpy(dst[strip], src[strip], bytes);
+    } else {
+      std::memset(dst[strip], 0, bytes);
     }
   }
 }

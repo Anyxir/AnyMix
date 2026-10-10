@@ -4,6 +4,7 @@
 #include "anymix/Engine.h"
 #include "anymix/NoiseGate.h"
 #include "anymix/Process.h"
+#include "testsupport.h"
 
 #include <cmath>
 #include <cstdio>
@@ -12,17 +13,6 @@
 #include <vector>
 
 namespace {
-
-int g_failed = 0;
-
-void Expect(bool cond, const char* name) {
-  if (cond) {
-    std::printf("PASS %s\n", name);
-  } else {
-    std::printf("FAIL %s\n", name);
-    ++g_failed;
-  }
-}
 
 float Rms(const float* data, int n) {
   double sum = 0.0;
@@ -395,11 +385,101 @@ void TestDsp() {
   params[kMic1].mono = false;
   params[kMic1].gain = 1.f;
   params[kMic1].route = 1u;
-  StripEq boosted;
-  ShapeStrips(inputs, kBlockFrames, params, &boosted, shaped);
+  StripEq boosted[kStrips];
+  ShapeStrips(inputs, kBlockFrames, params, boosted, shaped);
   const float boostedRms = Rms(shapedStore[kMic1], kBlockFrames * 2);
   const float lowRms = Rms(low, kBlockFrames * 2);
   Expect(boostedRms > lowRms * 1.4f, "bass shelf raises a low sine");
+}
+
+void TestGainPositive() {
+  using namespace anymix;
+  float input[kBlockFrames * 2];
+  float shapedStore[kStrips][kBlockFrames * 2];
+  float busStore[kBuses][kBlockFrames * 2];
+  float* shaped[kStrips];
+  float* buses[kBuses];
+  const float* inputs[kStrips];
+  for (int i = 0; i < kStrips; ++i) {
+    shaped[i] = shapedStore[i];
+    inputs[i] = input;
+  }
+  for (int i = 0; i < kBuses; ++i) {
+    buses[i] = busStore[i];
+  }
+  FillSine(input, kBlockFrames, 1000.f, 0.5f, 0.f);
+
+  BlockParams params[kStrips]{};
+  StripEq eq[kStrips];
+  params[kMic1].gain = 1.f;
+  params[kMic1].audible = true;
+  params[kMic1].route = 1u;
+  params[kMic1].bass = MakeLowShelf(0.f, 150.f, static_cast<float>(kSampleRate));
+  params[kMic1].treble = MakeHighShelf(0.f, 6000.f, static_cast<float>(kSampleRate));
+
+  // Test +6 dB : le signal doit être amplifié par ~1.995
+  params[kMic1].gain = std::pow(10.f, 6.f / 20.f);  // +6 dB = ~1.995
+  ShapeStrips(inputs, kBlockFrames, params, eq, shaped);
+  MixToBuses(shaped, kBlockFrames, params, buses);
+  const float dry = Rms(input, kBlockFrames * 2);
+  const float wet = Rms(busStore[0], kBlockFrames * 2);
+  const float expected = dry * std::pow(10.f, 6.f / 20.f);
+  Expect(std::fabs(wet - expected) < 0.05f, "+6 dB amplifies the signal (not limited)");
+
+  // Test +12 dB : le signal doit être amplifié par ~3.981
+  params[kMic1].gain = std::pow(10.f, 12.f / 20.f);  // +12 dB = ~3.981
+  ShapeStrips(inputs, kBlockFrames, params, eq, shaped);
+  MixToBuses(shaped, kBlockFrames, params, buses);
+  const float wet12 = Rms(busStore[0], kBlockFrames * 2);
+  const float expected12 = dry * std::pow(10.f, 12.f / 20.f);
+  Expect(std::fabs(wet12 - expected12) < 0.1f, "+12 dB amplifies the signal (not limited)");
+
+  // Test +3 dB : le signal doit être amplifié par ~1.413
+  params[kMic1].gain = std::pow(10.f, 3.f / 20.f);  // +3 dB = ~1.413
+  ShapeStrips(inputs, kBlockFrames, params, eq, shaped);
+  MixToBuses(shaped, kBlockFrames, params, buses);
+  const float wet3 = Rms(busStore[0], kBlockFrames * 2);
+  const float expected3 = dry * std::pow(10.f, 3.f / 20.f);
+  Expect(std::fabs(wet3 - expected3) < 0.03f, "+3 dB amplifies the signal (not limited)");
+
+  // Test -6 dB : le signal doit être réduit par ~0.501
+  params[kMic1].gain = std::pow(10.f, -6.f / 20.f);  // -6 dB = ~0.501
+  ShapeStrips(inputs, kBlockFrames, params, eq, shaped);
+  MixToBuses(shaped, kBlockFrames, params, buses);
+  const float wetNeg = Rms(busStore[0], kBlockFrames * 2);
+  const float expectedNeg = dry * std::pow(10.f, -6.f / 20.f);
+  Expect(std::fabs(wetNeg - expectedNeg) < 0.03f, "-6 dB reduces the signal");
+
+  // Test 0 dB : le signal doit rester identique
+  params[kMic1].gain = 1.f;
+  ShapeStrips(inputs, kBlockFrames, params, eq, shaped);
+  MixToBuses(shaped, kBlockFrames, params, buses);
+  const float wet0 = Rms(busStore[0], kBlockFrames * 2);
+  Expect(std::fabs(wet0 - dry) < 0.02f, "0 dB keeps the signal unchanged");
+
+  // Test avec limiteur : +6 dB avec signal faible (0.4) ne doit pas être compressé
+  // Le signal après +6 dB = 0.4 * 1.995 = 0.798, sous le plafond de 0.98
+  {
+    float lowInput[kBlockFrames * 2];
+    FillSine(lowInput, kBlockFrames, 1000.f, 0.4f, 0.f);
+    const float* lowInputs[kStrips];
+    for (int i = 0; i < kStrips; ++i) {
+      lowInputs[i] = lowInput;
+    }
+    params[kMic1].gain = std::pow(10.f, 6.f / 20.f);  // +6 dB = ~1.995
+    ShapeStrips(lowInputs, kBlockFrames, params, eq, shaped);
+    MixToBuses(shaped, kBlockFrames, params, buses);
+    const float lowWet = Rms(busStore[0], kBlockFrames * 2);
+    const float lowExpected = Rms(lowInput, kBlockFrames * 2) * std::pow(10.f, 6.f / 20.f);
+    Expect(std::fabs(lowWet - lowExpected) < 0.05f, "+6 dB with low signal amplifies correctly");
+
+    float limitedLow[kBlockFrames * 2];
+    std::memcpy(limitedLow, busStore[0], sizeof(limitedLow));
+    PeakLimit lowLimitState;
+    LimitStereo(limitedLow, kBlockFrames, lowLimitState);
+    const float limitedLowRms = Rms(limitedLow, kBlockFrames * 2);
+    Expect(limitedLowRms > lowWet * 0.95f, "limiter transparent with +6 dB and low signal");
+  }
 }
 
 void TestAsio() {
@@ -489,14 +569,19 @@ void TestHardware() {
 
 int wmain(int argc, wchar_t** argv) {
   TestDsp();
+  TestGainPositive();
   TestNoiseGate();
   TestLimiter();
+  RunGainTests();
+  RunEngineTests();
+  RunUiMathTests();
+  RunMeterTests();
   if (argc > 1 && argv[1] != nullptr && wcscmp(argv[1], L"dsp") == 0) {
-    std::printf(g_failed == 0 ? "ALL PASSED\n" : "FAILURES %d\n", g_failed);
-    return g_failed == 0 ? 0 : 1;
+    std::printf(TestFailures() == 0 ? "ALL PASSED\n" : "FAILURES %d\n", TestFailures());
+    return TestFailures() == 0 ? 0 : 1;
   }
   TestAsio();
   TestHardware();
-  std::printf(g_failed == 0 ? "ALL PASSED\n" : "FAILURES %d\n", g_failed);
-  return g_failed == 0 ? 0 : 1;
+  std::printf(TestFailures() == 0 ? "ALL PASSED\n" : "FAILURES %d\n", TestFailures());
+  return TestFailures() == 0 ? 0 : 1;
 }

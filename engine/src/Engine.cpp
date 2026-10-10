@@ -1236,7 +1236,7 @@ struct Engine::Impl {
     }
   }
 
-  void MixRouted(float* const buses[kBuses], int frames, PeakLimit* limits) {
+  void MixRouted(float* const buses[kBuses], int frames) {
     const int samples = frames * kChannels;
     const int source = recordBus.load(std::memory_order_relaxed);
     const uint32_t mirror = monitorMask.load(std::memory_order_relaxed);
@@ -1260,7 +1260,6 @@ struct Engine::Impl {
         for (int i = 0; i < samples; ++i) {
           dest[i] += from[i];
         }
-        LimitStereo(dest, frames, limits[bus]);
       }
     }
     float extra[kBlockFrames * 2];
@@ -1290,7 +1289,6 @@ struct Engine::Impl {
         for (int i = 0; i < samples; ++i) {
           dest[i] += extra[i];
         }
-        LimitStereo(dest, frames, limits[bus]);
       }
     }
   }
@@ -1416,21 +1414,31 @@ struct Engine::Impl {
     }
   }
 
-  void ExchangeAsio(float* shaped[kStrips], int frames) {
+  void ExchangeAsio(float* shaped[kStrips], const BlockParams* params, int frames) {
     EnsureAsio();
     if (asio == nullptr || frames <= 0) {
       return;
     }
     // The speaker quantum is often shorter than 512. Cantabile only hears a
     // block when one is actually published, so partial quanta have to accumulate.
+    // A muted (or solo-cut) strip must not reach the host at all: this send runs
+    // BEFORE the render loop's anti-resurrection memset, so gating it here is
+    // what keeps the mute contract true for the ASIO path too.
+    bool audible[kStrips];
+    for (int strip = 0; strip < kStrips; ++strip) {
+      audible[strip] = params[strip].audible;
+    }
     int offset = 0;
     while (offset < frames) {
       const int room = kBlockFrames - asioFill;
       const int count = std::min(room, frames - offset);
+      float* src[kStrips];
+      float* dst[kStrips];
       for (int strip = 0; strip < kStrips; ++strip) {
-        std::memcpy(asioPending[strip] + asioFill * kChannels, shaped[strip] + offset * kChannels,
-                    sizeof(float) * static_cast<size_t>(count) * kChannels);
+        src[strip] = shaped[strip] + offset * kChannels;
+        dst[strip] = asioPending[strip] + asioFill * kChannels;
       }
+      CopyStripBlockGated(src, audible, kStrips, count, dst);
       asioFill += count;
       offset += count;
       if (asioFill == kBlockFrames) {
@@ -1970,7 +1978,20 @@ struct Engine::Impl {
       float busStore[kBuses][kBlockFrames * kChannels]{};
       StripEq stripEq[kStrips];
       NoiseGate micGate[kMicStrips];
-      PeakLimit busLimit[kBuses];
+      // Bus fader smoothing state, same 24-sample GainRamp the strips use.
+      // Audio-thread-local: this Storage is created fresh by every Loop()
+      // invocation (one per engine Start), used only by the render thread, and
+      // never shared — so a restarted engine starts from default ramp state by
+      // construction. Plain data: no allocation, no locks, no atomics on the
+      // audio path.
+      GainRamp busGainRamp[kBuses];
+      // Mic fader smoothing state, same 24-sample GainRamp the strips and the
+      // buses use. Audio-thread-local under the same rules as busGainRamp:
+      // created fresh by every Loop(), used only by the render thread, plain
+      // data — no allocation, no locks, no atomics on the audio path. It is
+      // what the capture loop's instant per-block multiply (the C1 click on
+      // the mini-player's mic fader) was replaced with.
+      GainRamp micGainRamp[kMicStrips];
       FloatRing virtualIn[kVirtualStrips];
       WasapiEnd loops[kVirtualStrips];
     };
@@ -1988,7 +2009,8 @@ struct Engine::Impl {
     auto& busStore = store->busStore;
     auto& stripEq = store->stripEq;
     auto& micGate = store->micGate;
-    auto& busLimit = store->busLimit;
+    auto& busGainRamp = store->busGainRamp;
+    auto& micGainRamp = store->micGainRamp;
     auto& virtualIn = store->virtualIn;
     auto& loops = store->loops;
     link.Start(running, linkNote);
@@ -2017,6 +2039,13 @@ struct Engine::Impl {
     for (int i = 0; i < kMicStrips; ++i) {
       micGate[i].Prepare(static_cast<float>(kSampleRate));
     }
+    // Engine (re)start: clear the file-local per-strip fader ramp state
+    // (Process.cpp gStripRamps) so a restarted engine never ramps from stale
+    // gains left by the previous run. Runs on the render thread before the
+    // first block. The bus and mic ramps need no reset here: busGainRamp and
+    // micGainRamp live in Storage, which Loop() recreates fresh on every
+    // entry.
+    ResetStripGainRamps();
 
     while (running.load(std::memory_order_relaxed)) {
       const uint32_t seq = configSeq.load(std::memory_order_acquire);
@@ -2328,11 +2357,48 @@ struct Engine::Impl {
         } else {
           std::memset(micBlock[i], 0, sizeof(float) * frames * kChannels);
         }
+        // Mic fader smoothing: the same 24-sample GainRamp the strips and the
+        // buses use, applied per-sample here so a mic gain change cannot step
+        // the block at the boundary (the C1 click on the mini-player's
+        // headline control: slider, double-click 0 dB reset, wheel +-1 dB).
+        // The capture loop used to multiply the published gain straight into
+        // the block; ShapeStrips never saw it (mic strips enter it with
+        // params.gain = 1 below), so nothing smoothed it. State lives in
+        // Storage (audio-thread-local, fresh per Loop() by construction).
+        // Contract, same as the bus loop: lazy-adopt the first target, step
+        // re-targets from the applied value, snap exactly on the last sample,
+        // non-finite target holds the previous one. The gate below runs on the
+        // ramped signal (order unchanged: gain ramp BEFORE the noise gate).
+        GainRamp& ramp = micGainRamp[i];
         const float micGain = gain[kMic1 + i].load(std::memory_order_relaxed);
-        if (micGain != 1.f) {
-          const int micSamples = static_cast<int>(frames) * kChannels;
-          for (int s = 0; s < micSamples; ++s) {
-            micBlock[i][s] *= micGain;
+        const bool gainValid = std::isfinite(micGain);
+        if (!ramp.init) {
+          if (gainValid) {
+            ramp.applied = micGain;
+            ramp.target = micGain;
+          }
+          ramp.samplesLeft = 0;
+          ramp.init = true;
+        } else if (gainValid && micGain != ramp.target) {
+          ramp.target = micGain;
+          ramp.step = (ramp.target - ramp.applied) / static_cast<float>(kGainRampSamples);
+          ramp.samplesLeft = kGainRampSamples;
+        }
+        // Fast path kept from the old `micGain != 1.f` guard, but it cannot
+        // skip ramp samples: any pending ramp forces the loop (samplesLeft >
+        // 0), and at rest multiplying by exactly 1.f is a bit-exact no-op
+        // — same structure as the bus loop's guard.
+        if (ramp.applied != 1.f || ramp.samplesLeft > 0) {
+          for (int f = 0; f < static_cast<int>(frames); ++f) {
+            if (ramp.samplesLeft > 0) {
+              ramp.applied += ramp.step;
+              --ramp.samplesLeft;
+              if (ramp.samplesLeft == 0) {
+                ramp.applied = ramp.target;  // exact convergence, no float drift
+              }
+            }
+            micBlock[i][f * kChannels] *= ramp.applied;
+            micBlock[i][f * kChannels + 1] *= ramp.applied;
           }
         }
         micGate[i].SetLevel(gateLevel[i].load(std::memory_order_relaxed));
@@ -2407,16 +2473,6 @@ struct Engine::Impl {
           anySolo = true;
         }
         LoadEq(eq[i], params[i].bass, params[i].treble);
-        const float bass = bassDb[i].load(std::memory_order_relaxed);
-        const float treble = trebleDb[i].load(std::memory_order_relaxed);
-        float back = 0.f;
-        if (bass > 0.f) {
-          back += bass * 0.5f;
-        }
-        if (treble > 0.f) {
-          back += treble * 0.4f;
-        }
-        params[i].toneTrim = back > 0.05f ? std::pow(10.f, -back / 20.f) : 1.f;
       }
       if (anySolo) {
         for (int i = 0; i < kStrips; ++i) {
@@ -2436,7 +2492,7 @@ struct Engine::Impl {
       }
       ShapeStrips(inputs, static_cast<int>(frames), params, stripEq, shaped);
       vst.Process(shaped, kStrips, static_cast<int>(frames));
-      ExchangeAsio(shaped, static_cast<int>(frames));
+      ExchangeAsio(shaped, params, static_cast<int>(frames));
       for (int i = 0; i < kStrips; ++i) {
         if (!params[i].audible) {
           std::memset(shaped[i], 0, sizeof(float) * static_cast<size_t>(frames) * kChannels);
@@ -2460,11 +2516,31 @@ struct Engine::Impl {
         const bool soloCut = bus < kPhysicalBuses && anyBusSolo && !busSolo[bus].load(std::memory_order_relaxed);
         const bool audible = !busMute[bus].load(std::memory_order_relaxed) && !soloCut;
         if (!audible) {
+          // Muted bus: silence it and leave the ramp state as it is, so an
+          // unmute with a moved fader ramps in instead of stepping (same
+          // contract ShapeStrips has for muted strips).
           std::memset(samples, 0, sizeof(float) * static_cast<size_t>(mixSamples));
-          busLimit[bus] = {};
           continue;
         }
-        if (toMono || outputGain != 1.f) {
+        // Bus fader smoothing: same 24-sample GainRamp the strips use, applied
+        // per-sample here so a bus gain change cannot step the block output
+        // (the same click class the strip ramp fixed). The ramp state lives in
+        // Storage (audio-thread-local); it walks no samples while muted.
+        GainRamp& ramp = busGainRamp[bus];
+        const bool gainValid = std::isfinite(outputGain);
+        if (!ramp.init) {
+          if (gainValid) {
+            ramp.applied = outputGain;
+            ramp.target = outputGain;
+          }
+          ramp.samplesLeft = 0;
+          ramp.init = true;
+        } else if (gainValid && outputGain != ramp.target) {
+          ramp.target = outputGain;
+          ramp.step = (ramp.target - ramp.applied) / static_cast<float>(kGainRampSamples);
+          ramp.samplesLeft = kGainRampSamples;
+        }
+        if (toMono || ramp.applied != 1.f || ramp.samplesLeft > 0) {
           const int blockFrames = static_cast<int>(frames);
           for (int i = 0; i < blockFrames; ++i) {
             float left = samples[i * 2];
@@ -2474,14 +2550,20 @@ struct Engine::Impl {
               left = mid;
               right = mid;
             }
-            samples[i * 2] = left * outputGain;
-            samples[i * 2 + 1] = right * outputGain;
+            if (ramp.samplesLeft > 0) {
+              ramp.applied += ramp.step;
+              --ramp.samplesLeft;
+              if (ramp.samplesLeft == 0) {
+                ramp.applied = ramp.target;  // exact convergence, no float drift
+              }
+            }
+            samples[i * 2] = left * ramp.applied;
+            samples[i * 2 + 1] = right * ramp.applied;
           }
         }
-        LimitStereo(samples, static_cast<int>(frames), busLimit[bus]);
       }
       if (frames > 0 && frames <= kBlockFrames) {
-        MixRouted(buses, static_cast<int>(frames), busLimit);
+        MixRouted(buses, static_cast<int>(frames));
       }
 
       for (int i = 0; i < kStrips; ++i) {
@@ -2669,7 +2751,7 @@ void Engine::SetBusGainDb(int bus, float db) {
   if (bus < 0 || bus >= kBuses) {
     return;
   }
-  db = std::max(kFaderMinDb, std::min(kFaderMaxDb, db));
+  db = ClampFaderDb(db);
   impl_->busGain[bus].store(DbToGain(db), std::memory_order_relaxed);
 }
 
@@ -2698,7 +2780,7 @@ void Engine::SetGainDb(int strip, float db) {
   if (strip < 0 || strip >= kStrips) {
     return;
   }
-  db = std::max(kFaderMinDb, std::min(kFaderMaxDb, db));
+  db = ClampFaderDb(db);
   impl_->gain[strip].store(DbToGain(db), std::memory_order_relaxed);
 }
 

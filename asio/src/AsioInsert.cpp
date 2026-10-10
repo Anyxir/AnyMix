@@ -26,6 +26,12 @@ constexpr long kAseNoMemory = -994;
 constexpr long kAsioFloat32Lsb = 19;
 constexpr long kAsioSupportsTimeInfo = 7;
 
+// Private bridge for SelfCheck(): the production bridge is shared with a live
+// engine that publishes blocks continuously and would overwrite the sentinels
+// before the pump copies them. This mapping exercises the exact same pump code
+// with no interference from a running AnyMix instance.
+constexpr wchar_t kSelfCheckMappingName[] = L"Local\\AnyMix.AsioInsert3.SelfCheck";
+
 using AsioBool = long;
 using AsioError = long;
 using AsioSampleRate = double;
@@ -156,27 +162,7 @@ class InsertDriver {
     if (launchMixer_) {
       LaunchAnyMixEngine();
     }
-    map_ = CreateFileMappingW(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0,
-                              static_cast<DWORD>(sizeof(anymix::AsioBridge)), anymix::kAsioMappingName);
-    if (map_ == nullptr) {
-      return 0;
-    }
-    bridge_ = static_cast<anymix::AsioBridge*>(
-        MapViewOfFile(map_, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(anymix::AsioBridge)));
-    if (bridge_ == nullptr) {
-      CloseHandle(map_);
-      map_ = nullptr;
-      return 0;
-    }
-    if (bridge_->magic != anymix::kAsioMagic || bridge_->version != anymix::kAsioVersion ||
-        bridge_->channels != anymix::kAsioChannels) {
-      std::memset(bridge_, 0, sizeof(anymix::AsioBridge));
-      bridge_->magic = anymix::kAsioMagic;
-      bridge_->version = anymix::kAsioVersion;
-      bridge_->bufferFrames = anymix::kBlockFrames;
-      bridge_->channels = anymix::kAsioChannels;
-    }
-    return 1;
+    return BindBridge(anymix::kAsioMappingName) ? 1 : 0;
   }
   void GetDriverName(char* name) {
     std::strncpy(name, "AnyMix Insert ASIO", 31);
@@ -301,6 +287,30 @@ class InsertDriver {
   int SelfCheck();
 
  private:
+  bool BindBridge(const wchar_t* name) {
+    map_ = CreateFileMappingW(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0,
+                              static_cast<DWORD>(sizeof(anymix::AsioBridge)), name);
+    if (map_ == nullptr) {
+      return false;
+    }
+    bridge_ = static_cast<anymix::AsioBridge*>(
+        MapViewOfFile(map_, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(anymix::AsioBridge)));
+    if (bridge_ == nullptr) {
+      CloseHandle(map_);
+      map_ = nullptr;
+      return false;
+    }
+    if (bridge_->magic != anymix::kAsioMagic || bridge_->version != anymix::kAsioVersion ||
+        bridge_->channels != anymix::kAsioChannels) {
+      std::memset(bridge_, 0, sizeof(anymix::AsioBridge));
+      bridge_->magic = anymix::kAsioMagic;
+      bridge_->version = anymix::kAsioVersion;
+      bridge_->bufferFrames = anymix::kBlockFrames;
+      bridge_->channels = anymix::kAsioChannels;
+    }
+    return true;
+  }
+
   void StopThread() {
     run_ = false;
     if (worker_.joinable()) {
@@ -680,7 +690,12 @@ extern "C" HRESULT STDMETHODCALLTYPE DllUnregisterServer() {
 
 int InsertDriver::SelfCheck() {
   launchMixer_ = false;
-  if (!Init(nullptr) || bridge_ == nullptr) {
+  // The production bridge (Local\AnyMix.AsioInsert3) is shared: a running
+  // AnyMix.exe publishes audio blocks on it continuously and overwrites the
+  // sentinels before the pump can copy them. Bind a private mapping with the
+  // same layout instead: ThreadMain/CopyToInputs are identical, only the
+  // mapping name differs, so there is no interference from a live engine.
+  if (!BindBridge(kSelfCheckMappingName) || bridge_ == nullptr) {
     return 1;
   }
   long inputs = 0;

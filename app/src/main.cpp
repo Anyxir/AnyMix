@@ -2,6 +2,7 @@
 #include "anymix/Devices.h"
 #include "anymix/Engine.h"
 #include "anymix/NoiseGate.h"
+#include "../include/UiMath.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -1455,16 +1456,16 @@ void DrawMeter(Canvas& g, RECT r, float db, const Palette& pal, bool gray = fals
   }
   const int barW = std::max(4, static_cast<int>(r.right - r.left) - insetL - insetR);
   const int x = r.left + insetL;
-  const float clamped = std::max(-60.f, std::min(0.f, db));
+  const float clamped = anymix::ui::MeterClampDb(db);
   int topLit = -1;
   for (int i = 0; i < count; ++i) {
-    const float segDb = -60.f + (static_cast<float>(i) + 0.5f) / static_cast<float>(count) * 60.f;
+    const float segDb = anymix::ui::MeterDbAt(i, count);
     if (clamped >= segDb) {
       topLit = i;
     }
   }
   for (int i = 0; i < count; ++i) {
-    const float segDb = -60.f + (static_cast<float>(i) + 0.5f) / static_cast<float>(count) * 60.f;
+    const float segDb = anymix::ui::MeterDbAt(i, count);
     const bool lit = i <= topLit;
     const int y = bottom - (i + 1) * pitch;
     Gdiplus::Color zone = MeterZone(segDb, pal, gray);
@@ -1595,12 +1596,12 @@ void PaintMixer(Canvas& g, RECT area, const Palette& pal) {
   const int top = area.top + 8;
   const int meterTop = top + 28;
   const int meterH = g_compact ? 150 : 210;
-  const int marks[6] = {0, -3, -6, -12, -30, -60};
-  for (int i = 0; i < 6; ++i) {
-    const float t = (static_cast<float>(marks[i]) + 60.f) / 60.f;
+  const int marks[7] = {12, 6, 0, -6, -12, -30, -60};
+  for (int i = 0; i < 7; ++i) {
+    const float t = anymix::ui::MeterMarkT(marks[i]);
     const int y = meterTop + static_cast<int>((1.f - t) * static_cast<float>(meterH));
     wchar_t label[8];
-    wsprintfW(label, L"%d", marks[i]);
+    wsprintfW(label, L"%s%d", marks[i] > 0 ? L"+" : L"", marks[i]);
     Text(g, label, R(area.left, y - 8, scaleW - 4, 16), pal.dim, 10, true);
   }
   for (int strip = 0; strip < anymix::kStrips; ++strip) {
@@ -2815,17 +2816,17 @@ void DrawConsoleStrip(Canvas& g, RECT card, int strip, const Palette& pal) {
   }
   RECT meterL = R(left, meterTop, barW, meterH);
   RECT meterR = R(meterL.right + meterGap, meterTop, barW, meterH);
-  const int marks[7] = {0, -6, -12, -18, -24, -30, -60};
+  const int marks[7] = {12, 6, 0, -6, -12, -30, -60};
   int lastMark = -1000;
   for (int i = 0; i < 7; ++i) {
-    const float t = (static_cast<float>(marks[i]) + 60.f) / 60.f;
+    const float t = anymix::ui::MeterMarkT(marks[i]);
     const int y = meterL.top + static_cast<int>((1.f - t) * static_cast<float>(meterL.bottom - meterL.top));
     if (lastMark != -1000 && std::abs(y - lastMark) < 11) {
       continue;
     }
     lastMark = y;
     wchar_t label[8];
-    wsprintfW(label, L"%d", marks[i]);
+    wsprintfW(label, L"%s%d", marks[i] > 0 ? L"+" : L"", marks[i]);
     Text(g, label, R(x + 1, y - 6, 26, 12), pal.dim, 8, true);
   }
   const bool muted = g_strip[strip].mute;
@@ -6483,7 +6484,7 @@ void PaintMini(HWND window) {
       Gdiplus::SolidBrush led(armed && open ? pal.ok : (armed ? pal.warn : pal.line));
       g.FillEllipse(&led, static_cast<float>(w - 72), static_cast<float>(y + 4), 8.f, 8.f);
     }
-    const float db = DbOf(g_strip[strip].mute ? 0.f : g_meter[strip]);
+    const float db = DbOf(g_meter[strip]);
     const float level = std::max(0.f, std::min(1.f, (db + 60.f) / 60.f));
     RECT vu = R(16, y + 22, w - 32, 6);
     FillRR(g, vu, 3, pal.bg);
@@ -6494,8 +6495,7 @@ void PaintMini(HWND window) {
     }
     RECT slider{};
     MiniSliderRect(i, w, slider);
-    const float t = std::max(0.f, std::min(1.f, (g_strip[strip].gain - anymix::kFaderMinDb) /
-                                                     (anymix::kFaderMaxDb - anymix::kFaderMinDb)));
+    const float t = anymix::ui::FaderTFromDb(g_strip[strip].gain, anymix::kFaderMinDb, anymix::kFaderMaxDb);
     FillRR(g, R(slider.left, slider.top + 3, slider.right - slider.left, 6), 3, pal.line);
     const int fill = static_cast<int>(t * static_cast<float>(slider.right - slider.left));
     if (fill > 0) {
@@ -6504,10 +6504,11 @@ void PaintMini(HWND window) {
     const int knob = slider.left + fill;
     Gdiplus::SolidBrush knobBrush(pal.text);
     g.FillEllipse(&knobBrush, static_cast<float>(knob - 6), static_cast<float>(slider.top), 12.f, 12.f);
-    wchar_t pct[8];
-    wsprintfW(pct, L"%d%%", static_cast<int>(t * 100.f + 0.5f));
-    Text(g, pct, R(w - 52, y, 40, 20), pal.dim, 12, true);
-    AddHot(R(slider.left, slider.top - 4, slider.right - slider.left, 20), 5500 + i, L"Volume");
+    wchar_t dbText[16];
+    anymix::ui::FormatGainDb(g_strip[strip].gain, dbText, 16);
+    Text(g, dbText, R(w - 52, y, 40, 20), pal.dim, 12, true);
+    AddHot(R(slider.left, slider.top - 4, slider.right - slider.left, 20), 5500 + i,
+           L"Volume, -60 to +24 dB. Double-click returns to 0 dB.");
   }
   const bool muted = g_strip[anymix::kMic1].mute;
   RECT mute = R(16, h - 52, w - 32, 36);
