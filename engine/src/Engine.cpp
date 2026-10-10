@@ -860,6 +860,12 @@ class LinkClient {
       driver_ = nullptr;
       return false;
     }
+    // A proper ASIO host asks the driver for the engine's rate while no
+    // buffers are active. If the driver refuses, keep its own rate: the
+    // mismatch stays visible in the status instead of being hidden.
+    if (driver_->lpVtbl->canSampleRate(driver_, static_cast<double>(kSampleRate)) == 0) {
+      driver_->lpVtbl->setSampleRate(driver_, static_cast<double>(kSampleRate));
+    }
     long inputs = 0;
     long outputs = 0;
     if (driver_->lpVtbl->getChannels(driver_, &inputs, &outputs) != 0 || outputs < 10) {
